@@ -1,0 +1,9 @@
+<html>
+    <body>
+        <h1>{{team}}</h1>
+        {% for player in players %}
+            {{player}}
+        {% endfor %}
+        <p><a href = "{% url 'playerMainWindow' player_id %}"> Zpět </a></p>
+    <body>
+</html>

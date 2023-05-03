@@ -20,5 +20,13 @@ from Tournaments import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.index, name='index')
+    path('', views.index, name='index'),
+    path('/playerLogin', views.playerLogin, name='playerLogin'),
+    path('/playerLogin/verifyPlayerLogin', views.verifyPlayerLogin, name='verifyPlayerLogin'),
+    path('/playerMainWindow/<int:player_id>', views.playerMainWindow, name='playerMainWindow'),
+    path('/registerPlayer', views.registerPlayer, name='registerPlayer'),
+    path('/registerPlayer/addPlayer', views.addPlayer, name='addPlayer'),
+    path('/playerMainWindow/<int:player_id>/teamWindow/<int:team_id>', views.teamWindow, name='teamWindow'),
+    path('/playerMainWindow/<int:player_id>/createTeam', views.createTeam, name='createTeam'),
+    path('/playerMainWindow/<int:player_id>/createTeam/addTeam', views.addTeam, name='addTeam')
 ]
