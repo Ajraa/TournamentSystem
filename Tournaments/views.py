@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.contrib import messages
 from .models import *
 from .forms import *
+from django.db.models import Q
 
 # Create your views here.
 def index(request):
@@ -62,3 +63,14 @@ def addTeam(request, player_id):
         team.players.add(player)
         
         return redirect('playerMainWindow', player_id = player_id)
+    
+def joinTeam(request, player_id):
+    teams = Team.objects.all().exclude(players__id = player_id)
+    return render(request, 'joinTeam.html', {'teams': teams, 'player_id': player_id})
+
+def addExistingTeam(request, player_id, team_id):
+    team = Team.objects.filter(id = team_id).first()
+    player = Player.objects.first(id = player_id)
+    team.players.add(player)
+    
+    return redirect('playerMainWindow', player_id = player_id)

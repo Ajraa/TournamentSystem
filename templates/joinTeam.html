@@ -1,0 +1,9 @@
+<html>
+    <body>
+        <h1> Klikněte na tým, do kterého chcete vstoupit </h1>
+        {% for team in teams%}
+            <p><a href="{% url 'addExistingTeam' player_id=player_id team_id=team.id %}">{{team}}</p>
+        {%endfor%}
+        <p><a href="{% url 'playerMainWindow' player_id %}"> Zpět </a></p>
+    </body>
+</html>

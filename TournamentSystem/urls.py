@@ -28,5 +28,7 @@ urlpatterns = [
     path('/registerPlayer/addPlayer', views.addPlayer, name='addPlayer'),
     path('/playerMainWindow/<int:player_id>/teamWindow/<int:team_id>', views.teamWindow, name='teamWindow'),
     path('/playerMainWindow/<int:player_id>/createTeam', views.createTeam, name='createTeam'),
-    path('/playerMainWindow/<int:player_id>/createTeam/addTeam', views.addTeam, name='addTeam')
+    path('/playerMainWindow/<int:player_id>/createTeam/addTeam', views.addTeam, name='addTeam'),
+    path('/playerMainWindow/<int:player_id>/joinTeam', views.joinTeam, name='joinTeam'),
+    path('/playerMainWindow/<int:player_id>/joinTeam/eddExistingTeam/<int:team_id>', views.addExistingTeam, name='addExistingTeam')
 ]
