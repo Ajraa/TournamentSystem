@@ -1,0 +1,9 @@
+<html>
+    <body>
+        <h1>Turnaje</h1>
+        {% for tournament in tournaments %}
+            <p><a href="{% url 'addExistingTournament' player_id=player_id team_id=team_id tournament_id=tournament.id %}">{{tournament}}</a></p>
+        {% endfor %}
+    </body>
+        <p><a href="{% url 'teamWindow' player_id=player_id team_id=team_id %}">Zpět</a></p>
+</html>

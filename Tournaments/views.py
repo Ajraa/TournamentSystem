@@ -20,8 +20,8 @@ def verifyPlayerLogin(request):
         form_password = form.cleaned_data['password']
         player = Player.objects.filter(username = form_username, password = form_password)
        
-        if player.exists() > 0:
-            return redirect('playerMainWindow', player_id = player.id)
+        if player.exists():
+            return redirect('playerMainWindow', player_id = player.first().id)
     
 def playerMainWindow(request, player_id):
     teams = Team.objects.filter(players__id=player_id)
@@ -45,8 +45,8 @@ def addPlayer(request):
     
 def teamWindow(request, player_id, team_id):
     team = get_object_or_404(Team, pk = team_id)
-    messages.info(request, team.players)
-    return render(request, 'teamWindow.html', {'players': team.players.all(), 'team': team, 'player_id': player_id})
+    tournaments = Tournament.objects.filter(teams__id = team_id).all()
+    return render(request, 'teamWindow.html', {'players': team.players.all(), 'team': team, 'player_id': player_id, 'tournaments': tournaments})
 
 def createTeam(request, player_id):
     return render(request, 'createTeam.html', {'create_team_form': CreateTeamForm, 'player_id': player_id})
@@ -86,7 +86,7 @@ def verifyFounderLogin(request):
         founder = Founder.objects.filter(username = form_username, password = form_password)
        
         if founder.exists() > 0:
-            return redirect('founderMainWindow', founder_id = founder.id)
+            return redirect('founderMainWindow', founder_id = founder.first().id)
         
 def registerFounder(request):
     return render(request, 'founderRegister.html', {'register_form': FounderRegisterForm})
@@ -106,3 +106,44 @@ def addFounder(request):
 def founderMainWindow(request, founder_id):
     founder = Founder.objects.filter(id = founder_id).first()
     tournaments = Tournament.objects.filter(founder = founder).all()
+    
+    return render(request, 'founderMainWindow.html', {'founder': founder, 'tournaments': tournaments})
+
+def tournamentWindow(request, founder_id, tournament_id):
+    tournament = Tournament.objects.filter(id = tournament_id).first()
+    matches = Match.objects.filter(tournament = tournament).all()
+    
+    return render(request, 'tournamentWindow.html', {'founder_id': founder_id, 'tournament': tournament, 'matches': matches})
+    
+def createTournament(request, founder_id):
+    return render(request, 'createTournament.html', {'founder_id': founder_id, 'create_tournament_form': CreateTournamentForm})
+
+def addTournament(request, founder_id):
+    form = CreateTournamentForm(request.POST)
+    if form.is_valid():
+        name = form.cleaned_data['name']
+        max_teams = form.cleaned_data['max_teams']
+        start_time = form.cleaned_data['start_time']
+        
+        founder = Founder.objects.filter(id = founder_id).first()
+        tournament = Tournament(name = name, max_teams = max_teams, start_time = start_time, founder = founder)
+        tournament.save()
+        
+        return redirect('founderMainWindow', founder_id = founder.id)
+    return redirect('index')
+
+def matchWindow(request, tournament_id, match_id):
+    match = Match.objects.filter(id = match_id).first()
+    teams = match.teams.all()
+    return render(request, 'matchWindow.html', {'tournament_id': tournament_id, 'teams': teams})
+
+def joinTournament(request, player_id, team_id):
+    tournaments = Tournament.objects.exclude(teams__id = team_id)
+    return render(request, 'joinTournament.html', {'player_id': player_id, 'team_id': team_id, 'tournaments': tournaments})
+
+def addExistingTournament(request, player_id, team_id, tournament_id):
+    team = Team.objects.filter(id = team_id).first()
+    tournament = Tournament.objects.filter(id = tournament_id).first()
+    tournament.teams.add(team)
+    
+    return redirect('teamWindow', player_id= player_id, team_id = team_id)

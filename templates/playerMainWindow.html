@@ -2,9 +2,10 @@
     <body>
         <h1>ahoj, {{ player }}</h1>
         {% for team in teams%}
-            <p><a href="{% url 'teamWindow' player_id=player_id team_id=team.id %}">{{team}}</p>
+            <p><a href="{% url 'teamWindow' player_id=player_id team_id=team.id %}">{{team}}</a></p>
         {%endfor%}
         <p><a href="{% url 'createTeam' player_id %}">Vytvořit tým</a></p>
         <p><a href="{% url 'joinTeam' player_id %}">Vsoupit do týmu</a></p>
+        <p><a href="{% url 'playerLogin' %}">Odhlásit se</a></p>
     </body>
 </html>

@@ -1,9 +1,10 @@
-html>
+<html>
     <body>
         <h1>ahoj, {{ founder }}</h1>
         {% for tournament in tournaments%}
-            <p><a href="{% url 'tournamentWindow' founder_id=founder_id tournament_id=tournament.id %}">{{tournament}}</p>
+            <p><a href="{% url 'tournamentWindow' founder_id=founder.id tournament_id=tournament.id %}">{{tournament}}</p>
         {%endfor%}
-        <p><a href="{% url 'createTournament' founder_id %}">Vytvořit turnaj</a></p> 
+        <p><a href="{% url 'createTournament' founder.id %}">Vytvořit turnaj</a></p> 
+        <p><a href="{% url 'founderLogin' %}">Odhlásit se</a></p>
     </body>
 </html>

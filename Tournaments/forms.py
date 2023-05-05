@@ -1,4 +1,5 @@
 from django import forms
+from django.forms import widgets
 from .models import *
 
 class PlayerLoginForm(forms.ModelForm):
@@ -25,3 +26,11 @@ class FounderRegisterForm(forms.ModelForm):
     class Meta:
         model = Founder
         exclude = []
+        
+class CreateTournamentForm(forms.ModelForm):
+    class Meta:
+        model = Tournament
+        exclude = ['founder', 'teams']
+        widgets = {
+            'start_time': widgets.DateInput(attrs={'type': 'date'})
+        }

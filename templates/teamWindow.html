@@ -1,9 +1,16 @@
 <html>
     <body>
         <h1>{{team}}</h1>
+        <h2>Hráči</h2>
         {% for player in players %}
             {{player}}
         {% endfor %}
+        <h2>Turnaje</h2>
+        {% for tournament in tournaments %}
+            <p> {{tournament}} </p>
+        {% endfor %}
+        <p><a href="{% url 'joinTournament' player_id=player_id team_id=team.id %}">Vstoupit do turnaje</a></p>
         <p><a href = "{% url 'playerMainWindow' player_id %}"> Zpět </a></p>
     <body>
+    
 </html>

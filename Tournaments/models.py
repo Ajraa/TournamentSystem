@@ -31,6 +31,8 @@ class Founder(models.Model):
 
 class Tournament(models.Model):
     name = models.CharField(max_length=30, null=True)
+    max_teams = models.IntegerField(null=True)
+    start_time = models.DateTimeField(null=True)
     founder = models.ForeignKey(Founder, on_delete=models.CASCADE)
     teams = models.ManyToManyField(Team)
     
@@ -43,4 +45,4 @@ class Match(models.Model):
     state = models.CharField(max_length = 9)
     
     def __str__(self):
-        return f'Match - {self.state} - {self.tournament}, {self.teams}'
+        return f'Match - {self.state} - {list(self.teams.all())}'

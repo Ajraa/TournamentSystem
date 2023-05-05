@@ -1,0 +1,9 @@
+<html>
+    <body>
+        <p>{{tournament}}</p>
+        {% for match in matches %}
+            <p>{{match.id}} : {{match}}</p>
+        {% endfor %}
+        <p><a href="{% url 'founderMainWindow' founder_id%}">Zpět</a></p>
+    </body>
+</html
