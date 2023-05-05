@@ -27,6 +27,7 @@ urlpatterns = [
     path('/registerPlayer', views.registerPlayer, name='registerPlayer'),
     path('/registerPlayer/addPlayer', views.addPlayer, name='addPlayer'),
     path('/playerMainWindow/<int:player_id>/teamWindow/<int:team_id>', views.teamWindow, name='teamWindow'),
+    path('/playerMainWindow/<int:player_id>/teamWindow/<int:team_id>/kickPlayer/<int:kicked_player_id>', views.kickPlayer, name='kickPlayer'),
     path('/playerMainWindow/<int:player_id>/createTeam', views.createTeam, name='createTeam'),
     path('/playerMainWindow/<int:player_id>/createTeam/addTeam', views.addTeam, name='addTeam'),
     path('/playerMainWindow/<int:player_id>/joinTeam', views.joinTeam, name='joinTeam'),
@@ -35,5 +36,15 @@ urlpatterns = [
     path('/founderLogin/verifyFounderLogin', views.verifyFounderLogin, name='verifyFounderLogin'),
     path('/registerFounder', views.registerFounder, name='registerFounder'),
     path('/registerFounder/addFounder', views.addFounder, name='addFounder'),
-    path('/founderMainWindow/<int:founder_id>', views.founderMainWindow, name='founderMainWindow')
+    path('/founderMainWindow/<int:founder_id>', views.founderMainWindow, name='founderMainWindow'),
+    path('/founderMainWindow/<int:founder_id>/tournamentWindow/<int:tournament_id>', views.tournamentWindow, name='tournamentWindow'),
+    path('/founderMainWindow/<int:founder_id>/tournamentWindow/<int:tournament_id>/kickTeam/<int:team_id>', views.kickTeam, name='kickTeam'),
+    path('/founderMainWindow/<int:founder_id>/createTournament', views.createTournament, name='createTournament'),
+    path('/founderMainWindow/<int:founder_id>/createTournament/addTournament', views.addTournament, name='addTournament'),
+    path('/playerMainWindow/<int:player_id>/teamWindow/<int:team_id>/joinTournament', views.joinTournament, name='joinTournament'),
+    path('/playerMainWindow/<int:player_id>/teamWindow/<int:team_id>/joinTournament/addExistingTournament/<int:tournament_id>',
+         views.addExistingTournament, name='addExistingTournament'),
+    path('/founderMainWindow/<int:founder_id>/tournamentWindow/<int:tournament_id>/addMatch', views.addMatch, name='addMatch'),
+    path('/founderMainWindow/<int:founder_id>/tournamentWindow/<int:tournament_id>/changeState/<int:match_id>',
+         views.changeState, name='changeState')
 ]

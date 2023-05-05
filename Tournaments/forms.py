@@ -34,3 +34,9 @@ class CreateTournamentForm(forms.ModelForm):
         widgets = {
             'start_time': widgets.DateInput(attrs={'type': 'date'})
         }
+        
+class CreateMatchForm(forms.ModelForm):
+    class Meta:
+        model = Match
+        exclude = ['tournament', 'state']
+        

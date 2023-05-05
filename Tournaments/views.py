@@ -112,8 +112,14 @@ def founderMainWindow(request, founder_id):
 def tournamentWindow(request, founder_id, tournament_id):
     tournament = Tournament.objects.filter(id = tournament_id).first()
     matches = Match.objects.filter(tournament = tournament).all()
+    form = CreateMatchForm()
+    choices = []
+    for i in tournament.teams.all():
+        choices.append((i.id, i))
+    form.fields['teams'].choices = choices
     
-    return render(request, 'tournamentWindow.html', {'founder_id': founder_id, 'tournament': tournament, 'matches': matches})
+    return render(request, 'tournamentWindow.html', {'founder_id': founder_id, 'tournament': tournament, 'matches': matches,
+                                                     'teams': tournament.teams.all(), 'create_match_form': form})
     
 def createTournament(request, founder_id):
     return render(request, 'createTournament.html', {'founder_id': founder_id, 'create_tournament_form': CreateTournamentForm})
@@ -147,3 +153,39 @@ def addExistingTournament(request, player_id, team_id, tournament_id):
     tournament.teams.add(team)
     
     return redirect('teamWindow', player_id= player_id, team_id = team_id)
+
+def kickPlayer(request, player_id, team_id, kicked_player_id):
+    team = Team.objects.filter(id= team_id).first()
+    player = Player.objects.filter(id = kicked_player_id).first()
+    team.players.remove(player)
+    
+    return redirect('teamWindow', player_id= player_id, team_id = team_id)
+
+def kickTeam(request, founder_id, tournament_id, team_id):
+    tournament = Tournament.objects.filter(id = tournament_id).first()
+    team = Team.objects.filter(id=team_id).first()
+    tournament.teams.remove(team)
+    
+    return redirect('tournamentWindow', founder_id=founder_id, tournament_id=tournament_id)
+
+def addMatch(request, founder_id, tournament_id):
+    tounament = Tournament.objects.filter(id = tournament_id).first()
+    form = CreateMatchForm(request.POST)
+    if form.is_valid():
+        
+        teams = form.cleaned_data['teams']
+        
+        match = Match(tournament=tounament, state='ongoing')
+        match.save()
+        for i in teams:
+            match.teams.add(i)
+        return redirect('tournamentWindow', founder_id=founder_id, tournament_id=tournament_id)
+
+def changeState(request, founder_id, tournament_id, match_id):
+    match = Match.objects.filter(id = match_id).first()
+    if match.state == 'ongoing':
+        match.state = 'finished'
+    else:
+        match.state = 'ongoing'
+    match.save()
+    return redirect('tournamentWindow', founder_id=founder_id, tournament_id=tournament_id)

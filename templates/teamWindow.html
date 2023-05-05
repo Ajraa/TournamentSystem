@@ -3,7 +3,7 @@
         <h1>{{team}}</h1>
         <h2>Hráči</h2>
         {% for player in players %}
-            {{player}}
+            <p>{{player}} | <a href="{% url 'kickPlayer' player_id=player_id team_id=team.id kicked_player_id=player.id %}">Vyhodit z týmu</a></p>
         {% endfor %}
         <h2>Turnaje</h2>
         {% for tournament in tournaments %}

@@ -1,9 +1,24 @@
 <html>
     <body>
-        <p>{{tournament}}</p>
-        {% for match in matches %}
-            <p>{{match.id}} : {{match}}</p>
+        <h1>{{tournament}}</h1>
+
+        <h2>Týmy</h2>
+        {% for team in teams %}
+            <p>{{team}} | <a href="{% url 'kickTeam' founder_id=founder_id tournament_id=tournament.id team_id=team.id %}"> Vyhodit z turnaje</a></p>
         {% endfor %}
+
+        <h2>Zápasy</h2>
+        {% for match in matches %}
+            <p>{{match.id}} : {{match}} | <a href="{% url 'changeState' founder_id=founder_id tournament_id=tournament.id match_id=match.id %}">Změnit stav</a></p>
+        {% endfor %}
+
+        <h2>Vytvořit zápas</h2>
+        <form action={% url 'addMatch' founder_id=founder_id tournament_id=tournament.id %} method = "post">
+            {% csrf_token %}
+            {{create_match_form.as_p}}
+            <input type="submit" value="Vytvořit">
+        </form>
+
         <p><a href="{% url 'founderMainWindow' founder_id%}">Zpět</a></p>
     </body>
 </html
