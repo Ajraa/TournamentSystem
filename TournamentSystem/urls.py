@@ -30,5 +30,10 @@ urlpatterns = [
     path('/playerMainWindow/<int:player_id>/createTeam', views.createTeam, name='createTeam'),
     path('/playerMainWindow/<int:player_id>/createTeam/addTeam', views.addTeam, name='addTeam'),
     path('/playerMainWindow/<int:player_id>/joinTeam', views.joinTeam, name='joinTeam'),
-    path('/playerMainWindow/<int:player_id>/joinTeam/eddExistingTeam/<int:team_id>', views.addExistingTeam, name='addExistingTeam')
+    path('/playerMainWindow/<int:player_id>/joinTeam/eddExistingTeam/<int:team_id>', views.addExistingTeam, name='addExistingTeam'),
+    path('/founderLogin', views.founderLogin, name='founderLogin'),
+    path('/founderLogin/verifyFounderLogin', views.verifyFounderLogin, name='verifyFounderLogin'),
+    path('/registerFounder', views.registerFounder, name='registerFounder'),
+    path('/registerFounder/addFounder', views.addFounder, name='addFounder'),
+    path('/founderMainWindow/<int:founder_id>', views.founderMainWindow, name='founderMainWindow')
 ]

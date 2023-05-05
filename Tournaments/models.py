@@ -16,7 +16,6 @@ class Team(models.Model):
     name = models.CharField(max_length = 20)
     tag = models.CharField(max_length = 3)
     players = models.ManyToManyField(Player)
-    #captain = models.ForeignKey(Player, on_delete=models.CASCADE)
     
     def __str__(self):
         return f'{self.tag} {self.name}'
@@ -26,22 +25,20 @@ class Founder(models.Model):
     lname = models.CharField(max_length = 50)
     username = models.CharField(max_length = 20)
     password = models.CharField(max_length = 20)
-    #koment
     
     def __str__(self):
         return f'{self.fname} {self.lname}, {self.username}'
 
 class Tournament(models.Model):
+    name = models.CharField(max_length=30, null=True)
     founder = models.ForeignKey(Founder, on_delete=models.CASCADE)
     teams = models.ManyToManyField(Team)
     
     def __str__(self):
-        return f'Tournament - {self.founder}, {self.teams}'
+        return f'{self.name} - {self.founder}'
     
 class Match(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)
-    #left_team = models.ForeignKey(Team, on_delete=models.CASCADE)
-    #right_team = models.ForeignKey(Team, on_delete=models.CASCADE)
     teams = models.ManyToManyField(Team)
     state = models.CharField(max_length = 9)
     

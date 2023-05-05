@@ -1,0 +1,9 @@
+html>
+    <body>
+        <h1>ahoj, {{ founder }}</h1>
+        {% for tournament in tournaments%}
+            <p><a href="{% url 'tournamentWindow' founder_id=founder_id tournament_id=tournament.id %}">{{tournament}}</p>
+        {%endfor%}
+        <p><a href="{% url 'createTournament' founder_id %}">Vytvořit turnaj</a></p> 
+    </body>
+</html>

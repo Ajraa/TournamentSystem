@@ -15,3 +15,13 @@ class CreateTeamForm(forms.ModelForm):
     class Meta():
         model = Team
         exclude = ['players']
+        
+class FounderLoginForm(forms.ModelForm):
+    class Meta():
+        model = Founder
+        exclude = ['fname', 'lname']
+        
+class FounderRegisterForm(forms.ModelForm):
+    class Meta:
+        model = Founder
+        exclude = []

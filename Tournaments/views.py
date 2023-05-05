@@ -74,3 +74,35 @@ def addExistingTeam(request, player_id, team_id):
     team.players.add(player)
     
     return redirect('playerMainWindow', player_id = player_id)
+
+def founderLogin(request):
+    return render(request, 'founderLogin.html', {'login_form': FounderLoginForm})
+
+def verifyFounderLogin(request):
+    form = FounderLoginForm(request.GET)
+    if form.is_valid():
+        form_username = form.cleaned_data['username']
+        form_password = form.cleaned_data['password']
+        founder = Founder.objects.filter(username = form_username, password = form_password)
+       
+        if founder.exists() > 0:
+            return redirect('founderMainWindow', founder_id = founder.id)
+        
+def registerFounder(request):
+    return render(request, 'founderRegister.html', {'register_form': FounderRegisterForm})
+
+def addFounder(request):
+    form = FounderRegisterForm(request.POST)
+    if form.is_valid():
+        fname = form.cleaned_data['fname']
+        lname = form.cleaned_data['lname']
+        username = form.cleaned_data['username']
+        password = form.cleaned_data['password']
+        
+        founder = Founder(fname = fname, lname = lname, username = username, password = password)
+        founder.save()
+        return redirect('founderMainWindow', founder_id = founder.id)
+    
+def founderMainWindow(request, founder_id):
+    founder = Founder.objects.filter(id = founder_id).first()
+    tournaments = Tournament.objects.filter(founder = founder).all()

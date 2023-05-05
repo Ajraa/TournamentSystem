@@ -8,11 +8,11 @@
 </head>
 <body>
     <h1>Player login</h1>
-    <form action={% url 'verifyPlayerLogin'%} method = "get">
+    <form action={% url 'verifyFounderLogin'%} method = "get">
         {% csrf_token %}
         {{login_form.as_p}}
         <input type="submit" value="Login">
     </form>
-    <a href="{% url 'registerPlayer' %}">Nemáte účet? Zaregistrujte se</a>
+    <a href="{% url 'registerFounder' %}">Nemáte účet? Zaregistrujte se</a>
 </body>
 </html>
