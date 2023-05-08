@@ -1,11 +1,13 @@
 <html>
     <body>
-        <h1>Vytváření týmu</h1>
-        <form action={% url 'addTeam' player_id %} method = "post">
-            {% csrf_token %}
-            {{create_team_form.as_p}}
-            <input type="submit" value="Vytvořit">
-        </form>
-        <p><a href="{% url 'playerMainWindow' player_id %}"> Zpět </a></p>
+        <div style="text-align: center;">
+            <h1>Vytváření týmu</h1>
+            <form action={% url 'addTeam' player_id %} method = "post">
+                {% csrf_token %}
+                {{create_team_form.as_p}}
+                <input type="submit" value="Vytvořit">
+            </form>
+            <p><a href="{% url 'playerMainWindow' player_id %}"> Zpět </a></p>
+        </div>
     </body>
 </html>

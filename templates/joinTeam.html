@@ -1,9 +1,27 @@
 <html>
+    <head>
+        {% load bootstrap5 %}
+        {% bootstrap_css %}
+        {% bootstrap_javascript %}
+    </head>
     <body>
-        <h1> Klikněte na tým, do kterého chcete vstoupit </h1>
-        {% for team in teams%}
-            <p><a href="{% url 'addExistingTeam' player_id=player_id team_id=team.id %}">{{team}}</p>
-        {%endfor%}
-        <p><a href="{% url 'playerMainWindow' player_id %}"> Zpět </a></p>
+        <div style="text-align: center;">
+            <h1> Klikněte na tým, do kterého chcete vstoupit </h1>
+            <div class="table-responsive-sm">
+                <table class="table">
+                    <tr>
+                        <th scope="col">Jméno</th>
+                        <th scope="col">Zakladatel</th>
+                    </tr>
+                {% for team in teams%}
+                    <tr>
+                        <td><a href="{% url 'addExistingTeam' player_id=player_id team_id=team.id %}">{{team.tag}}</a></td>
+                        <td><a href="{% url 'addExistingTeam' player_id=player_id team_id=team.id %}">{{team.name}}</a></td>
+                    </tr>
+                {%endfor%}
+                </table>
+            </div>
+            <p><a href="{% url 'playerMainWindow' player_id %}"> Zpět </a></p>
+        </div>
     </body>
 </html>

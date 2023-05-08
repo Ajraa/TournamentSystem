@@ -1,10 +1,12 @@
 <html>
     <body>
-        <h1>Registrace</h1>
-        <form action = {% url 'addPlayer' %} method = "post">
-            {% csrf_token %}
-            {{register_form.as_p}}
-            <input type="submit" value="Register">
-        </form>
+        <div style="text-align: center;">
+            <h1>Registrace</h1>
+            <form action = {% url 'addPlayer' %} method = "post">
+                {% csrf_token %}
+                {{register_form.as_p}}
+                <input type="submit" value="Register">
+            </form>
+        </div>  
     </body>
 </html

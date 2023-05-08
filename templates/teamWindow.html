@@ -1,16 +1,49 @@
 <html>
+    <head>
+        {% load bootstrap5 %}
+        {% bootstrap_css %}
+        {% bootstrap_javascript %}
+    </head>
     <body>
-        <h1>{{team}}</h1>
-        <h2>Hráči</h2>
-        {% for player in players %}
-            <p>{{player}} | <a href="{% url 'kickPlayer' player_id=player_id team_id=team.id kicked_player_id=player.id %}">Vyhodit z týmu</a></p>
-        {% endfor %}
-        <h2>Turnaje</h2>
-        {% for tournament in tournaments %}
-            <p> {{tournament}} </p>
-        {% endfor %}
-        <p><a href="{% url 'joinTournament' player_id=player_id team_id=team.id %}">Vstoupit do turnaje</a></p>
-        <p><a href = "{% url 'playerMainWindow' player_id %}"> Zpět </a></p>
+        <div style="text-align: center;">
+            <h1>{{team}}</h1>
+            <h2>Hráči</h2>
+            <div class="table-responsive-sm">
+                <table class="table">
+                    <tr>
+                        <th scope="col">Jméno</th>
+                        <th scope="col">Username</th>
+                        <th scope="col">Příjmení</th>
+                        <th scope="col"></th>
+                    </tr>
+                    {% for player in players %}
+                        <tr>
+                            <td>{{player.fname}}</td>
+                            <td>{{player.username}}</td>
+                            <td>{{player.lname}}</td>
+                            <td><a href="{% url 'kickPlayer' player_id=player_id team_id=team.id kicked_player_id=player.id %}">Vyhodit z týmu</a></td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+            <h2>Turnaje</h2>
+            <div class="table-responsive-sm">
+                <table class="table">
+                    <tr>
+                        <th scope="col">Jméno</th>
+                        <th scope="col">Zakladatel</th>
+                    </tr>
+                    {% for tournament in tournaments%}
+                        <tr>
+                            <td>{{tournament.name}}</td>
+                            <td>{{tournament.founder}}</td>
+                        </tr>
+                    {%endfor%}
+                </table>
+            </div>
+            <p><a href="{% url 'joinTournament' player_id=player_id team_id=team.id %}">Vstoupit do turnaje</a></p>
+            <p><a href = "{% url 'playerMainWindow' player_id %}"> Zpět </a></p>
+        </div>
     <body>
     
 </html>

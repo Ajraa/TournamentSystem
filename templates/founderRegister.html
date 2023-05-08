@@ -1,12 +1,14 @@
 <html>
     <body>
         <h1>Registrace</h1>
-        <form action = {% url 'addFounder' %} method = "post">
-            {% csrf_token %}
-            {{register_form.as_p}}
-            <input type="submit" value="Register">
-        </form>
-        <p><a href={%url 'founderLogin'%}>Zpět</a></p>
+        <div style="text-align: center;">
+            <form action = {% url 'addFounder' %} method = "post">
+                {% csrf_token %}
+                {{register_form.as_p}}
+                <input type="submit" value="Register">
+            </form>
+            <p><a href={% url 'founderLogin' %}>Zpět</a></p>
+        </div>
     </body>
 
 </html

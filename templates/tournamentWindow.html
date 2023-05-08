@@ -1,24 +1,57 @@
 <html>
+    <head>
+        {% load bootstrap5 %}
+        {% bootstrap_css %}
+        {% bootstrap_javascript %}
+    </head>
     <body>
-        <h1>{{tournament}}</h1>
+        <div style="text-align: center;">
+            <h1>{{tournament}}</h1>
+            <div class="table-responsive-sm">
+                <h2>Týmy</h2>
+                <table class="table">
+                    <tr>
+                        <th scope="col">Tag</th>
+                        <th scope="col">Jméno</th>
+                        <th></th>
+                    </tr>
+                    {% for team in teams %}
+                        <tr>
+                            <td>{{team.tag}}</td>
+                            <td>{{team.name}}</td>
+                            <td><a href="{% url 'kickTeam' founder_id=founder_id tournament_id=tournament.id team_id=team.id %}"> Vyhodit z turnaje</a></td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
 
-        <h2>Týmy</h2>
-        {% for team in teams %}
-            <p>{{team}} | <a href="{% url 'kickTeam' founder_id=founder_id tournament_id=tournament.id team_id=team.id %}"> Vyhodit z turnaje</a></p>
-        {% endfor %}
+            <h2>Zápasy</h2>
+            <div class="table-responsive-sm">
+                <table class="table">
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Stav</th>
+                        <th scope="col">Týmy</th>
+                        <th></th>
+                    </tr>
+                    {% for match in matches %}
+                        <tr>
+                            <td>{{match.id}}</td>
+                            <td>{{match.state}}</td>
+                            <td><a href="{% url 'changeState' founder_id=founder_id tournament_id=tournament.id match_id=match.id %}">Změnit stav</a></td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
 
-        <h2>Zápasy</h2>
-        {% for match in matches %}
-            <p>{{match.id}} : {{match}} | <a href="{% url 'changeState' founder_id=founder_id tournament_id=tournament.id match_id=match.id %}">Změnit stav</a></p>
-        {% endfor %}
+            <h2>Vytvořit zápas</h2>
+            <form action={% url 'addMatch' founder_id=founder_id tournament_id=tournament.id %} method = "post">
+                {% csrf_token %}
+                {{create_match_form.as_p}}
+                <input type="submit" value="Vytvořit">
+            </form>
 
-        <h2>Vytvořit zápas</h2>
-        <form action={% url 'addMatch' founder_id=founder_id tournament_id=tournament.id %} method = "post">
-            {% csrf_token %}
-            {{create_match_form.as_p}}
-            <input type="submit" value="Vytvořit">
-        </form>
-
-        <p><a href="{% url 'founderMainWindow' founder_id%}">Zpět</a></p>
+            <p><a href="{% url 'founderMainWindow' founder_id%}">Zpět</a></p>
+        </div>
     </body>
 </html

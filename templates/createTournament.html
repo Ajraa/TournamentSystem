@@ -1,13 +1,14 @@
 <html>
     <body>
-        <p>Vytváření týmu</p>
+        <div style="text-align: center;">
+            <p>Vytváření týmu</p>
+            <form action={% url 'addTournament' founder_id %} method = "post">
+                {% csrf_token %}
+                {{create_tournament_form.as_p}}
+                <input type="submit" value="Vytvořit">
+            </form>
 
-        <form action={% url 'addTournament' founder_id %} method = "post">
-            {% csrf_token %}
-            {{create_tournament_form.as_p}}
-            <input type="submit" value="Vytvořit">
-        </form>
-
-        <p><a href="{% url 'founderMainWindow' founder_id %}">Zpět</a></p>
+            <p><a href="{% url 'founderMainWindow' founder_id %}">Zpět</a></p>
+        </div>
     </body>
 </html>

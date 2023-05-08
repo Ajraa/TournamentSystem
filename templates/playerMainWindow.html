@@ -1,11 +1,29 @@
 <html>
+    <head>
+        {% load bootstrap5 %}
+        {% bootstrap_css %}
+        {% bootstrap_javascript %}
+    </head>
     <body>
-        <h1>ahoj, {{ player }}</h1>
-        {% for team in teams%}
-            <p><a href="{% url 'teamWindow' player_id=player_id team_id=team.id %}">{{team}}</a></p>
-        {%endfor%}
-        <p><a href="{% url 'createTeam' player_id %}">Vytvořit tým</a></p>
-        <p><a href="{% url 'joinTeam' player_id %}">Vsoupit do týmu</a></p>
-        <p><a href="{% url 'playerLogin' %}">Odhlásit se</a></p>
+        <div style="text-align: center;">
+            <h1>Ahoj, {{ player }}</h1>
+            <div class="table-responsive-sm">
+                <table class="table">
+                    <tr>
+                        <th scope="col">Tag</th>
+                        <th scope="col">Jméno</th>
+                    </tr>
+                    {% for team in teams%}
+                        <tr>
+                            <td><a href="{% url 'teamWindow' player_id=player_id team_id=team.id %}">{{team.tag}}</a></td>
+                            <td><a href="{% url 'teamWindow' player_id=player_id team_id=team.id %}">{{team.name}}</a></td>
+                        </tr>
+                    {%endfor%}
+                </table>
+                <p><a href="{% url 'createTeam' player_id %}">Vytvořit tým</a></p>
+                <p><a href="{% url 'joinTeam' player_id %}">Vsoupit do týmu</a></p>
+                <p><a href="{% url 'playerLogin' %}">Odhlásit se</a></p>
+            </div>
+        </div>
     </body>
 </html>

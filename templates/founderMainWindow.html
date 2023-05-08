@@ -1,10 +1,29 @@
+<!DOCTYPE html>
 <html>
+    <head>
+        {% load bootstrap5 %}
+        {% bootstrap_css %}
+        {% bootstrap_javascript %}
+    </head>
     <body>
-        <h1>ahoj, {{ founder }}</h1>
-        {% for tournament in tournaments%}
-            <p><a href="{% url 'tournamentWindow' founder_id=founder.id tournament_id=tournament.id %}">{{tournament}}</p>
-        {%endfor%}
-        <p><a href="{% url 'createTournament' founder.id %}">Vytvořit turnaj</a></p> 
-        <p><a href="{% url 'founderLogin' %}">Odhlásit se</a></p>
+        <div style="text-align: center;">
+            <h1>Ahoj, {{ founder }}</h1>
+            <div class="table-responsive-sm">
+                <table class="table">
+                    <tr>
+                        <th scope="col">Jméno</th>
+                        <th scope="col">Zakladatel</th>
+                    </tr>
+                    {% for tournament in tournaments%}
+                        <tr>
+                            <td><a href="{% url 'tournamentWindow' founder_id=founder.id tournament_id=tournament.id %}">{{tournament.name}}</a></td>
+                            <td>{{tournament.founder}}</td>
+                        </tr>
+                    {%endfor%}
+                </table>
+            </div>
+            <p><a href="{% url 'createTournament' founder.id %}">Vytvořit turnaj</a></p> 
+            <p><a href="{% url 'founderLogin' %}">Odhlásit se</a></p>
+        </div>
     </body>
 </html>

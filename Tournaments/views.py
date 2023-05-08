@@ -70,7 +70,7 @@ def joinTeam(request, player_id):
 
 def addExistingTeam(request, player_id, team_id):
     team = Team.objects.filter(id = team_id).first()
-    player = Player.objects.first(id = player_id)
+    player = Player.objects.filter(id = player_id).first()
     team.players.add(player)
     
     return redirect('playerMainWindow', player_id = player_id)

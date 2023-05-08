@@ -6,14 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
-<body>
-    <h1>Founder login</h1>
-    <form action={% url 'verifyFounderLogin'%} method = "get">
-        {% csrf_token %}
-        {{login_form.as_p}}
-        <input type="submit" value="Login">
-    </form>
-    <p><a href="{% url 'registerFounder' %}">Nemáte účet? Zaregistrujte se</a></p>
-    <p><a href="{% url 'index' %}">Zpět</a></p>
-</body>
+    <body>
+        <div style="text-align: center;">
+            <h1>Founder login</h1>
+            <form action={% url 'verifyFounderLogin'%} method = "get">
+                {% csrf_token %}
+                {{login_form.as_p}}
+                <input type="submit" value="Login">
+            </form>
+            <p><a href="{% url 'registerFounder' %}">Nemáte účet? Zaregistrujte se</a></p>
+            <p><a href="{% url 'index' %}">Zpět</a></p>
+        </div>
+    </body>
 </html>
