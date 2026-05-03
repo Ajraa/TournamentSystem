@@ -3,29 +3,33 @@ from django.forms import widgets
 from .models import *
 
 class PlayerLoginForm(forms.ModelForm):
-    class Meta():
+    class Meta:
         model = Player
         exclude = ['fname', 'lname']
-        
+        widgets = {'password': widgets.PasswordInput()}
+
 class PlayerRegisterForm(forms.ModelForm):
-    class Meta():
+    class Meta:
         model = Player
         exclude = []
-        
+        widgets = {'password': widgets.PasswordInput()}
+
 class CreateTeamForm(forms.ModelForm):
-    class Meta():
+    class Meta:
         model = Team
         exclude = ['players']
-        
+
 class FounderLoginForm(forms.ModelForm):
-    class Meta():
+    class Meta:
         model = Founder
         exclude = ['fname', 'lname']
-        
+        widgets = {'password': widgets.PasswordInput()}
+
 class FounderRegisterForm(forms.ModelForm):
     class Meta:
         model = Founder
         exclude = []
+        widgets = {'password': widgets.PasswordInput()}
         
 class CreateTournamentForm(forms.ModelForm):
     class Meta:

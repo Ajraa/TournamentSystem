@@ -4,6 +4,7 @@ from django.contrib import messages
 from .models import *
 from .forms import *
 from django.db.models import Q
+import bcrypt
 
 # Create your views here.
 def index(request):
@@ -18,10 +19,10 @@ def verifyPlayerLogin(request):
     if form.is_valid():
         form_username = form.cleaned_data['username']
         form_password = form.cleaned_data['password']
-        player = Player.objects.filter(username = form_username, password = form_password)
-       
-        if player.exists():
-            return redirect('playerMainWindow', player_id = player.first().id)
+        player = Player.objects.filter(username=form_username).first()
+
+        if player and bcrypt.checkpw(form_password.encode(), player.password.encode()):
+            return redirect('playerMainWindow', player_id=player.id)
     
 def playerMainWindow(request, player_id):
     teams = Team.objects.filter(players__id=player_id)
@@ -37,11 +38,11 @@ def addPlayer(request):
         fname = form.cleaned_data['fname']
         lname = form.cleaned_data['lname']
         username = form.cleaned_data['username']
-        password = form.cleaned_data['password']
-        
-        player = Player(fname = fname, lname = lname, username = username, password = password)
+        password = bcrypt.hashpw(form.cleaned_data['password'].encode(), bcrypt.gensalt()).decode()
+
+        player = Player(fname=fname, lname=lname, username=username, password=password)
         player.save()
-        return redirect('playerMainWindow', player_id = player.id)
+        return redirect('playerMainWindow', player_id=player.id)
     
 def teamWindow(request, player_id, team_id):
     team = get_object_or_404(Team, pk = team_id)
@@ -83,10 +84,10 @@ def verifyFounderLogin(request):
     if form.is_valid():
         form_username = form.cleaned_data['username']
         form_password = form.cleaned_data['password']
-        founder = Founder.objects.filter(username = form_username, password = form_password)
-       
-        if founder.exists():
-            return redirect('founderMainWindow', founder_id = founder.first().id)
+        founder = Founder.objects.filter(username=form_username).first()
+
+        if founder and bcrypt.checkpw(form_password.encode(), founder.password.encode()):
+            return redirect('founderMainWindow', founder_id=founder.id)
         
 def registerFounder(request):
     return render(request, 'founderRegister.html', {'register_form': FounderRegisterForm})
@@ -97,11 +98,11 @@ def addFounder(request):
         fname = form.cleaned_data['fname']
         lname = form.cleaned_data['lname']
         username = form.cleaned_data['username']
-        password = form.cleaned_data['password']
-        
-        founder = Founder(fname = fname, lname = lname, username = username, password = password)
+        password = bcrypt.hashpw(form.cleaned_data['password'].encode(), bcrypt.gensalt()).decode()
+
+        founder = Founder(fname=fname, lname=lname, username=username, password=password)
         founder.save()
-        return redirect('founderMainWindow', founder_id = founder.id)
+        return redirect('founderMainWindow', founder_id=founder.id)
     
 def founderMainWindow(request, founder_id):
     founder = Founder.objects.filter(id = founder_id).first()

@@ -6,7 +6,7 @@ class Player(models.Model):
     fname = models.CharField(max_length = 50)
     lname = models.CharField(max_length = 50)
     username = models.CharField(max_length = 20)
-    password = models.CharField(max_length = 20)
+    password = models.CharField(max_length = 100)
     
     
     def __str__(self):
@@ -24,7 +24,7 @@ class Founder(models.Model):
     fname = models.CharField(max_length = 50)
     lname = models.CharField(max_length = 50)
     username = models.CharField(max_length = 20)
-    password = models.CharField(max_length = 20)
+    password = models.CharField(max_length = 100)
     
     def __str__(self):
         return f'{self.fname} {self.lname}, {self.username}'
