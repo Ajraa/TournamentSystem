@@ -85,7 +85,7 @@ def verifyFounderLogin(request):
         form_password = form.cleaned_data['password']
         founder = Founder.objects.filter(username = form_username, password = form_password)
        
-        if founder.exists() > 0:
+        if founder.exists():
             return redirect('founderMainWindow', founder_id = founder.first().id)
         
 def registerFounder(request):

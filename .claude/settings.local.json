@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python manage.py --version)",
+      "Bash(python -m django --version)",
+      "Bash(python3 -m django --version)",
+      "Bash(pip index *)",
+      "Bash(pip install *)",
+      "Bash(venv/Scripts/python -c \"import bootstrap5; print\\('OK:', bootstrap5.__file__\\)\")",
+      "Bash(venv/Scripts/pip show *)"
+    ]
+  }
+}
