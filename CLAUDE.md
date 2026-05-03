@@ -4,14 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Přehled projektu
 
-Školní Django projekt — systém pro správu turnajů. Umožňuje hráčům tvořit týmy a zakladatelům organizovat turnaje se zápasy.
+Školní Django projekt — systém pro správu turnajů s Google OAuth2 autentizací. Umožňuje hráčům tvořit týmy a zakladatelům organizovat turnaje se zápasy.
 
 ## Závislosti
 
 ```
 Django>=5.2
 django-bootstrap5
-bcrypt
+django-allauth[google]
 ```
 
 ## Spuštění
@@ -46,16 +46,24 @@ Aplikace běží na `http://127.0.0.1:8000/`. Django admin je na `/admin/`.
 
 Projekt má jednu Django aplikaci `Tournaments/` s function-based views.
 
-**Dva typy uživatelů** (vlastní modely, nezávislé na Django auth):
-- **Player** — registruje se, vytváří/přidává se do týmů, tým přidává do turnajů
-- **Founder** — registruje se, vytváří turnaje a spravuje zápasy
+**Dva typy uživatelů** (vlastní modely rozšiřující Django auth přes Google OAuth2 přes django-allauth):
+- **Player** — přihlašuje se přes Google, vytváří/přidává se do týmů, tým přidává do turnajů
+- **Founder** — přihlašuje se přes Google, vytváří turnaje a spravuje zápasy
+
+**Přístupová ochrana** pomocí dekorátorů v `Tournaments/decorators.py`:
+- `@player_required` — ověří, že přihlášený uživatel má profil Player
+- `@founder_required` — ověří, že přihlášený uživatel má profil Founder
+
+Po přihlášení přes Google je uživatel přesměrován na `/role-select/`, kde si zvolí roli (Player nebo Founder), pokud ji ještě nemá.
 
 **Datový model:**
 ```
-Player ─┐
-        ├── Team ─── Tournament ─── Match
-Founder ─┘
+auth.User ── Player ─┐
+                     ├── Team ─── Tournament ─── Match
+auth.User ── Founder ─┘
 ```
+- `Player.user` → OneToOneField → `auth.User`
+- `Founder.user` → OneToOneField → `auth.User`
 - `Team.players` → ManyToMany → `Player`
 - `Tournament.teams` → ManyToMany → `Team`
 - `Tournament.founder` → ForeignKey → `Founder`
@@ -63,10 +71,10 @@ Founder ─┘
 - `Match.state` → `'ongoing'` nebo `'finished'`
 
 **URL struktura:**
-- `/playerLogin`, `/registerPlayer` — autentifikace hráče
-- `/playerMainWindow/<player_id>/` — hlavní okno hráče (týmy, turnaje)
-- `/founderLogin`, `/registerFounder` — autentifikace zakladatele
-- `/founderMainWindow/<founder_id>/` — hlavní okno zakladatele (turnaje, zápasy)
+- `/accounts/google/login/` — přihlášení přes Google (django-allauth)
+- `/role-select/` — výběr role po prvním přihlášení
+- `/player/dashboard/` — hlavní okno hráče (týmy, turnaje)
+- `/founder/dashboard/` — hlavní okno zakladatele (turnaje, zápasy)
 
 **Šablony** jsou v `templates/` (ne uvnitř aplikace).
 
@@ -74,10 +82,34 @@ Founder ─┘
 
 SQLite, soubor `db.sqlite3` v kořeni projektu. Migrace jsou v `Tournaments/migrations/`.
 
-## Kontextová varování (školní projekt)
+## Setup Google OAuth
 
-- Hesla jsou hashována bcryptem (`bcrypt.hashpw` při registraci, `bcrypt.checkpw` při loginu) — logika v `Tournaments/views.py`
+### 1. Vytvoření Google Cloud Console projektu
+1. Otevřít https://console.cloud.google.com
+2. Vytvořit nový projekt
+3. Přejít na "APIs & Services" → "OAuth consent screen" → nakonfigurovat
+4. Přejít na "APIs & Services" → "Credentials" → "Create credentials" → "OAuth 2.0 Client ID"
+   - Application type: Web application
+   - Authorized redirect URIs: `http://127.0.0.1:8000/accounts/google/login/callback/`
+5. Zkopírovat Client ID a Client Secret
+
+### 2. Nastavení v Django admin
+Po spuštění serveru a migraci:
+1. Přejít na `http://127.0.0.1:8000/admin/`
+2. "Sites" → upravit `example.com` na `127.0.0.1:8000` (domain + display name)
+3. "Social Applications" → "Add":
+   - Provider: Google
+   - Name: Google OAuth
+   - Client id: [z Google Cloud Console]
+   - Secret key: [z Google Cloud Console]
+   - Sites: přesunout `127.0.0.1:8000` do "Chosen sites"
+4. Uložit
+
+### 3. Testování
+Otevřít `http://127.0.0.1:8000/` → kliknout "Přihlásit přes Google" → ověřit OAuth flow
+
+## Poznámky (školní projekt)
+
 - `django-bootstrap5` verze 26.2+ používá modul `django_bootstrap5` (v `INSTALLED_APPS` i `{% load django_bootstrap5 %}` v šablonách)
 - `SECRET_KEY` je hardkódovaný v `settings.py`
 - `DEBUG = True` je nastaveno natrvalo
-- Autentifikace nepoužívá Django `auth` systém — session ukládá pouze ID uživatele

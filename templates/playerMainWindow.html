@@ -15,14 +15,14 @@
                     </tr>
                     {% for team in teams%}
                         <tr>
-                            <td><a href="{% url 'teamWindow' player_id=player_id team_id=team.id %}">{{team.tag}}</a></td>
-                            <td><a href="{% url 'teamWindow' player_id=player_id team_id=team.id %}">{{team.name}}</a></td>
+                            <td><a href="{% url 'team_window' team_id=team.id %}">{{team.tag}}</a></td>
+                            <td><a href="{% url 'team_window' team_id=team.id %}">{{team.name}}</a></td>
                         </tr>
                     {%endfor%}
                 </table>
-                <p><a href="{% url 'createTeam' player_id %}">Vytvořit tým</a></p>
-                <p><a href="{% url 'joinTeam' player_id %}">Vsoupit do týmu</a></p>
-                <p><a href="{% url 'playerLogin' %}">Odhlásit se</a></p>
+                <p><a href="{% url 'create_team' %}">Vytvořit tým</a></p>
+                <p><a href="{% url 'join_team' %}">Vsoupit do týmu</a></p>
+                <p><a href="{% url 'account_logout' %}">Odhlásit se</a></p>
             </div>
         </div>
     </body>

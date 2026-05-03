@@ -16,14 +16,14 @@
                     </tr>
                     {% for tournament in tournaments%}
                         <tr>
-                            <td><a href="{% url 'tournamentWindow' founder_id=founder.id tournament_id=tournament.id %}">{{tournament.name}}</a></td>
+                            <td><a href="{% url 'tournament_window' tournament_id=tournament.id %}">{{tournament.name}}</a></td>
                             <td>{{tournament.founder}}</td>
                         </tr>
                     {%endfor%}
                 </table>
             </div>
-            <p><a href="{% url 'createTournament' founder.id %}">Vytvořit turnaj</a></p> 
-            <p><a href="{% url 'founderLogin' %}">Odhlásit se</a></p>
+            <p><a href="{% url 'create_tournament' %}">Vytvořit turnaj</a></p>
+            <p><a href="{% url 'account_logout' %}">Odhlásit se</a></p>
         </div>
     </body>
 </html>

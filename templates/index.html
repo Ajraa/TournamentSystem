@@ -1,8 +1,31 @@
-<html>
-    <body>
-        <div style="text-align: center;">
-            <h1><a href="{% url 'playerLogin' %}">Hráč</a></h1>
-            <h1><a href="{% url 'founderLogin' %}">Zakladatel</a></h1>
+{% load django_bootstrap5 %}
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Turnajový systém</title>
+    {% bootstrap_css %}
+</head>
+<body>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <h1 class="mb-4">Turnajový systém</h1>
+            {% if user.is_authenticated %}
+                {% if user.player_profile %}
+                    <a href="{% url 'player_dashboard' %}" class="btn btn-primary btn-lg">Přejít na dashboard hráče</a>
+                {% elif user.founder_profile %}
+                    <a href="{% url 'founder_dashboard' %}" class="btn btn-success btn-lg">Přejít na dashboard zakladatele</a>
+                {% else %}
+                    <a href="{% url 'role_select' %}" class="btn btn-warning btn-lg">Vybrat roli</a>
+                {% endif %}
+            {% else %}
+                <a href="{% url 'account_login' %}" class="btn btn-danger btn-lg">Přihlásit přes Google</a>
+            {% endif %}
         </div>
-    </body>
+    </div>
+</div>
+{% bootstrap_javascript %}
+</body>
 </html>

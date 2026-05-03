@@ -1,0 +1,36 @@
+{% load django_bootstrap5 %}
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Výběr role</title>
+    {% bootstrap_css %}
+</head>
+<body>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <h1 class="mb-3">Vítej, {{ request.user.first_name }}!</h1>
+            <p class="lead mb-4">Přihlásil/a jsi se poprvé. Zvol svou roli:</p>
+            <div class="d-grid gap-3">
+                <form method="post" action="{% url 'set_role' 'player' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                        Jsem hráč
+                    </button>
+                </form>
+
+                <form method="post" action="{% url 'set_role' 'founder' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success btn-lg w-100">
+                        Jsem zakladatel turnajů
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% bootstrap_javascript %}
+</body>
+</html>

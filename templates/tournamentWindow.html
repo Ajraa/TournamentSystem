@@ -19,7 +19,7 @@
                         <tr>
                             <td>{{team.tag}}</td>
                             <td>{{team.name}}</td>
-                            <td><a href="{% url 'kickTeam' founder_id=founder_id tournament_id=tournament.id team_id=team.id %}"> Vyhodit z turnaje</a></td>
+                            <td><a href="{% url 'kick_team' tournament_id=tournament.id team_id=team.id %}"> Vyhodit z turnaje</a></td>
                         </tr>
                     {% endfor %}
                 </table>
@@ -38,20 +38,20 @@
                         <tr>
                             <td>{{match.id}}</td>
                             <td>{{match.state}}</td>
-                            <td><a href="{% url 'changeState' founder_id=founder_id tournament_id=tournament.id match_id=match.id %}">Změnit stav</a></td>
+                            <td><a href="{% url 'change_state' tournament_id=tournament.id match_id=match.id %}">Změnit stav</a></td>
                         </tr>
                     {% endfor %}
                 </table>
             </div>
 
             <h2>Vytvořit zápas</h2>
-            <form action={% url 'addMatch' founder_id=founder_id tournament_id=tournament.id %} method = "post">
+            <form action={% url 'add_match' tournament_id=tournament.id %} method="post">
                 {% csrf_token %}
                 {{create_match_form.as_p}}
                 <input type="submit" value="Vytvořit">
             </form>
 
-            <p><a href="{% url 'founderMainWindow' founder_id%}">Zpět</a></p>
+            <p><a href="{% url 'founder_dashboard' %}">Zpět</a></p>
         </div>
     </body>
-</html
+</html>
