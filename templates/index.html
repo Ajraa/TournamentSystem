@@ -21,7 +21,8 @@
                     <a href="{% url 'role_select' %}" class="btn btn-warning btn-lg">Vybrat roli</a>
                 {% endif %}
             {% else %}
-                <a href="{% url 'account_login' %}" class="btn btn-danger btn-lg">Přihlásit přes Google</a>
+                {% load socialaccount %}
+                <a href="{% provider_login_url 'google' %}" class="btn btn-danger btn-lg">Přihlásit přes Google</a>
             {% endif %}
         </div>
     </div>

@@ -93,17 +93,19 @@ SQLite, soubor `db.sqlite3` v kořeni projektu. Migrace jsou v `Tournaments/migr
    - Authorized redirect URIs: `http://127.0.0.1:8000/accounts/google/login/callback/`
 5. Zkopírovat Client ID a Client Secret
 
-### 2. Nastavení v Django admin
-Po spuštění serveru a migraci:
-1. Přejít na `http://127.0.0.1:8000/admin/`
-2. "Sites" → upravit `example.com` na `127.0.0.1:8000` (domain + display name)
-3. "Social Applications" → "Add":
-   - Provider: Google
-   - Name: Google OAuth
-   - Client id: [z Google Cloud Console]
-   - Secret key: [z Google Cloud Console]
-   - Sites: přesunout `127.0.0.1:8000` do "Chosen sites"
-4. Uložit
+### 2. Nastavení přes .env
+
+Credentials se konfigurují v souboru `.env` v kořeni projektu:
+
+```
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+```
+
+`settings.py` je načítá automaticky přes `SOCIALACCOUNT_PROVIDERS['google']['APP']`.
+**Admin → Social Applications není potřeba nastavovat** — konfigurace z `.env` má přednost.
+
+> Pokud byl dříve vytvořen záznam v Admin → Social Applications, smaž ho — jinak může dojít ke konfliktu.
 
 ### 3. Testování
 Otevřít `http://127.0.0.1:8000/` → kliknout "Přihlásit přes Google" → ověřit OAuth flow
