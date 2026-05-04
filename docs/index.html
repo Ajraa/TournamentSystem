@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Django + Google OAuth2 | Prezentace</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #0f1117;
+    color: #e8eaed;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .slideshow {
+    width: 100%;
+    height: 100vh;
+    position: relative;
+  }
+
+  .slide {
+    display: none;
+    width: 100%;
+    height: 100vh;
+    padding: 52px 80px 80px;
+    position: absolute;
+    top: 0; left: 0;
+    overflow-y: auto;
+    animation: fadeIn .3s ease;
+  }
+
+  .slide.active {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Google akcenty */
+  .accent-blue   { color: #4285F4; }
+  .accent-red    { color: #EA4335; }
+  .accent-green  { color: #34A853; }
+  .accent-yellow { color: #FBBC05; }
+
+  /* Progress bar */
+  .progress {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #4285F4, #34A853);
+    transition: width .3s ease;
+    z-index: 200;
+  }
+
+  /* Navigace */
+  .nav {
+    position: fixed;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    z-index: 100;
+  }
+
+  .nav button {
+    background: #1e2129;
+    border: 1px solid #3c4049;
+    color: #e8eaed;
+    padding: 7px 22px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background .2s;
+  }
+
+  .nav button:hover:not(:disabled) { background: #2d3142; }
+  .nav button:disabled { opacity: .3; cursor: default; }
+
+  .slide-counter {
+    font-size: 13px;
+    color: #5f6368;
+    min-width: 50px;
+    text-align: center;
+  }
+
+  /* Typografie */
+  h1 { font-size: 2.6rem; font-weight: 700; line-height: 1.2; margin-bottom: 8px; }
+  h2 { font-size: 1.75rem; font-weight: 600; margin-bottom: 20px; }
+  h3 {
+    font-size: 1.05rem; font-weight: 600; margin-bottom: 8px;
+    color: #9aa0a6; text-transform: uppercase; letter-spacing: .07em;
+  }
+  p  { font-size: 1rem; line-height: 1.75; color: #bdc1c6; margin-bottom: 12px; }
+
+  .subtitle {
+    font-size: 1.15rem;
+    color: #9aa0a6;
+    margin-bottom: 32px;
+    line-height: 1.6;
+  }
+
+  .separator {
+    width: 56px; height: 3px;
+    background: linear-gradient(90deg, #4285F4, #34A853);
+    border-radius: 2px;
+    margin: 14px 0 22px;
+  }
+
+  /* Tagy */
+  .tag {
+    display: inline-block;
+    background: #1a2744;
+    color: #4285F4;
+    border: 1px solid #2d4a8a;
+    border-radius: 4px;
+    padding: 3px 10px;
+    font-size: .82rem;
+    margin: 3px;
+  }
+
+  /* Karty */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin-top: 8px;
+  }
+
+  .card {
+    background: #1e2129;
+    border: 1px solid #3c4049;
+    border-radius: 10px;
+    padding: 20px;
+  }
+
+  .card h4 { font-size: .95rem; margin-bottom: 8px; }
+  .card p  { font-size: .88rem; margin: 0; line-height: 1.6; }
+
+  .card.blue   { border-top: 3px solid #4285F4; }
+  .card.red    { border-top: 3px solid #EA4335; }
+  .card.green  { border-top: 3px solid #34A853; }
+  .card.yellow { border-top: 3px solid #FBBC05; }
+
+  /* Kód */
+  pre, code {
+    font-family: 'Consolas', 'Fira Code', monospace;
+    font-size: .85rem;
+  }
+
+  pre {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 16px 20px;
+    overflow-x: auto;
+    line-height: 1.6;
+    margin-bottom: 12px;
+  }
+
+  .kw { color: #ff7b72; }
+  .st { color: #a5d6ff; }
+  .cm { color: #8b949e; }
+  .fn { color: #d2a8ff; }
+  .cl { color: #ffa657; }
+  .nu { color: #79c0ff; }
+
+  /* Dvousloupcový layout */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+
+  /* Číslované kroky */
+  .flow-steps {
+    counter-reset: step;
+    list-style: none;
+    margin-top: 8px;
+  }
+
+  .flow-steps li {
+    counter-increment: step;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 14px;
+    font-size: .95rem;
+    color: #bdc1c6;
+    line-height: 1.5;
+  }
+
+  .flow-steps li::before {
+    content: counter(step);
+    background: #4285F4;
+    color: #fff;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .78rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* Architektonický diagram — CSS boxy místo ASCII */
+  .arch-flow {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .arch-node {
+    background: #1e2129;
+    border: 1px solid #4285F4;
+    border-radius: 6px;
+    padding: 6px 16px;
+    font-size: .85rem;
+    color: #e8eaed;
+    font-family: monospace;
+    white-space: nowrap;
+  }
+
+  .arch-arrow {
+    font-size: .8rem;
+    color: #5f6368;
+    line-height: 1.2;
+    text-align: center;
+  }
+
+  /* Datový model */
+  .model-diagram {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 10px;
+    padding: 20px;
+    font-family: monospace;
+    font-size: .82rem;
+    line-height: 2;
+    color: #9aa0a6;
+  }
+
+  .mn { display: inline-block; background: #1e2129; border: 1px solid; border-radius: 4px; padding: 1px 10px; color: #e8eaed; margin: 1px 0; }
+  .mn-grey   { border-color: #9aa0a6; }
+  .mn-blue   { border-color: #4285F4; }
+  .mn-red    { border-color: #EA4335; }
+  .mn-green  { border-color: #34A853; }
+  .mn-yellow { border-color: #FBBC05; }
+
+  /* Literatura */
+  .lit-list { list-style: none; margin-top: 8px; }
+
+  .lit-list li {
+    padding: 9px 0;
+    border-bottom: 1px solid #2a2d35;
+    font-size: .92rem;
+    color: #bdc1c6;
+    display: flex;
+    gap: 12px;
+    align-items: baseline;
+  }
+
+  .lit-list li span.num {
+    color: #4285F4; font-weight: 700; font-size: .82rem; min-width: 22px;
+  }
+
+  .lit-list a { color: #8ab4f8; text-decoration: none; }
+  .lit-list a:hover { text-decoration: underline; }
+
+  /* Citát */
+  .opinion-box {
+    background: linear-gradient(135deg, #1a2744, #1e2129);
+    border: 1px solid #2d4a8a;
+    border-left: 4px solid #4285F4;
+    border-radius: 8px;
+    padding: 22px 26px;
+    margin: 16px 0;
+    font-style: italic;
+    color: #c8d0d8;
+    line-height: 1.8;
+    font-size: .97rem;
+  }
+
+  /* Google tečky na titulní stránce */
+  .google-dots { display: flex; gap: 10px; margin-bottom: 24px; }
+  .google-dot  { width: 16px; height: 16px; border-radius: 50%; }
+
+  /* Autoři */
+  .authors {
+    margin-top: 32px;
+    display: flex;
+    gap: 32px;
+  }
+
+  .author-card {
+    background: #1e2129;
+    border: 1px solid #3c4049;
+    border-radius: 8px;
+    padding: 12px 20px;
+  }
+
+  .author-name  { font-size: 1rem; font-weight: 600; color: #e8eaed; }
+  .author-login { font-size: .82rem; color: #4285F4; font-family: monospace; margin-top: 2px; }
+
+  /* WireShark placeholder */
+  .ws-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 8px;
+  }
+
+  .ws-placeholder {
+    background: #161b22;
+    border: 2px dashed #3c4049;
+    border-radius: 10px;
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 20px;
+    text-align: center;
+    transition: border-color .2s;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .ws-placeholder:hover { border-color: #4285F4; }
+
+  .ws-placeholder input[type="file"] {
+    position: absolute; inset: 0;
+    opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  }
+
+  .ws-placeholder img {
+    max-width: 100%; max-height: 150px;
+    border-radius: 6px; object-fit: contain;
+  }
+
+  .ws-icon { font-size: 2rem; }
+  .ws-label { font-size: .95rem; font-weight: 600; color: #e8eaed; }
+  .ws-desc  { font-size: .8rem; color: #5f6368; }
+  .ws-hint  { font-size: .75rem; color: #3c4049; margin-top: 4px; }
+
+  .ws-placeholder.has-image .ws-hint,
+  .ws-placeholder.has-image .ws-icon { display: none; }
+
+  @media (max-width: 900px) {
+    .slide { padding: 40px 28px 80px; }
+    h1 { font-size: 1.9rem; }
+    h2 { font-size: 1.4rem; }
+    .two-col, .ws-grid { grid-template-columns: 1fr; }
+    .card-grid { grid-template-columns: 1fr 1fr; }
+    .authors { flex-direction: column; gap: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<div class="slideshow">
+
+  <!-- ======= SLIDE 1: Titulní ======= -->
+  <div class="slide active" id="slide-1">
+    <div class="google-dots">
+      <div class="google-dot" style="background:#4285F4"></div>
+      <div class="google-dot" style="background:#EA4335"></div>
+      <div class="google-dot" style="background:#FBBC05"></div>
+      <div class="google-dot" style="background:#34A853"></div>
+    </div>
+    <h3>Semestrální projekt</h3>
+    <h1>Django <span class="accent-blue">&amp;</span> Google <span class="accent-red">OAuth2</span></h1>
+    <div class="separator"></div>
+    <p class="subtitle">Demonstrační webová aplikace — Turnajový systém<br>s autentizací přes Google API</p>
+    <div>
+      <span class="tag">Python 3.13</span>
+      <span class="tag">Django 6.0</span>
+      <span class="tag">django-allauth 65</span>
+      <span class="tag">OAuth 2.0</span>
+      <span class="tag">Google API</span>
+    </div>
+    <div class="authors">
+      <div class="author-card">
+        <div class="author-name">Pavel Salajka</div>
+        <div class="author-login">SAL0156</div>
+      </div>
+      <div class="author-card">
+        <div class="author-name">Alexandr Kania</div>
+        <div class="author-login">KAN0242</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= SLIDE 2: Co je OAuth2 ======= -->
+  <div class="slide" id="slide-2">
+    <h3>Popis tématu</h3>
+    <h2>Co je <span class="accent-blue">OAuth 2.0</span>?</h2>
+    <div class="separator"></div>
+    <p>OAuth 2.0 je otevřený autorizační protokol (RFC 6749), který umožňuje aplikacím získat omezený přístup k uživatelskému účtu na jiné službě — <strong>bez sdílení hesla</strong>. Uživatel schvaluje přístup přímo na straně poskytovatele (Google, GitHub…).</p>
+    <div class="card-grid">
+      <div class="card blue">
+        <h4 class="accent-blue">Bezpečnost</h4>
+        <p>Aplikace nikdy nevidí heslo uživatele. Přístupové tokeny mají omezenou platnost a scope.</p>
+      </div>
+      <div class="card red">
+        <h4 class="accent-red">Pohodlí</h4>
+        <p>Jeden klik — žádná registrace, žádné zapomenuté heslo. Uživatel používá svůj Google účet.</p>
+      </div>
+      <div class="card green">
+        <h4 class="accent-green">Standard</h4>
+        <p>Podporuje ho Google, Facebook, GitHub, Microsoft a další. Používá ho většina moderních webů.</p>
+      </div>
+      <div class="card yellow">
+        <h4 class="accent-yellow">Delegace</h4>
+        <p>Aplikace může dostat přístup k emailu, profilu, kalendáři — jen to, co uživatel schválí.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= SLIDE 3: OAuth flow ======= -->
+  <div class="slide" id="slide-3">
+    <h3>Jak to funguje</h3>
+    <h2>OAuth 2.0 <span class="accent-green">Authorization Code Flow</span></h2>
+    <div class="separator"></div>
+    <div class="two-col">
+      <ol class="flow-steps">
+        <li>Uživatel klikne na <em>„Přihlásit přes Google"</em></li>
+        <li>Aplikace přesměruje na Google autorizační server s <code>client_id</code> a <code>scope</code></li>
+        <li>Google zobrazí consent screen — uživatel schválí přístup</li>
+        <li>Google vrátí jednorázový <strong>Authorization Code</strong> na callback URL</li>
+        <li>Server vymění kód za <strong>Access Token</strong> (+ ID Token) pomocí <code>client_secret</code></li>
+        <li>Access Token slouží k načtení profilu z Google API</li>
+        <li>Aplikace vytvoří/přihlásí lokálního uživatele</li>
+      </ol>
+      <div class="arch-flow">
+        <div class="arch-node" style="border-color:#4285F4">Prohlížeč</div>
+        <div class="arch-arrow">↕ přesměrování (redirect)</div>
+        <div class="arch-node" style="border-color:#EA4335">Google OAuth Server</div>
+        <div class="arch-arrow">↕ auth code &rarr; token exchange</div>
+        <div class="arch-node" style="border-color:#34A853">Django Backend</div>
+        <div class="arch-arrow">↕ GET /userinfo</div>
+        <div class="arch-node" style="border-color:#FBBC05">Google People API</div>
+        <p style="margin-top:12px; font-size:.8rem; color:#5f6368; text-align:center">
+          client_secret putuje pouze server ↔ server, nikdy přes prohlížeč
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= SLIDE 4: Stávající stav ======= -->
+  <div class="slide" id="slide-4">
+    <h3>Stávající stav</h3>
+    <h2>Autentizace v <span class="accent-red">Django</span> bez OAuth</h2>
+    <div class="separator"></div>
+    <div class="two-col">
+      <div>
+        <p>Tradiční Django autentizace pracuje s uživatelským jménem a heslem uloženým v databázi:</p>
+        <pre><code><span class="cm"># Klasická Django autentizace</span>
+<span class="kw">from</span> django.contrib.auth <span class="kw">import</span> authenticate
+
+user = <span class="fn">authenticate</span>(
+    request,
+    username=<span class="st">"uzivatel"</span>,
+    password=<span class="st">"heslo123"</span>
+)
+<span class="kw">if</span> user <span class="kw">is not</span> <span class="nu">None</span>:
+    login(request, user)</code></pre>
+        <p style="font-size:.88rem">Hesla jsou hashována (PBKDF2), ale aplikace musí sama řešit registraci, reset hesla, ověření emailu, brute-force ochranu…</p>
+      </div>
+      <div>
+        <div class="card red" style="margin-bottom:14px">
+          <h4 class="accent-red">Nevýhody vlastní autentizace</h4>
+          <p>Správa hesel, reset, 2FA, phishing, nutnost ukládat citlivá data v DB</p>
+        </div>
+        <div class="card green">
+          <h4 class="accent-green">Výhody OAuth2 přes Google</h4>
+          <p>Žádná hesla v DB, Google řeší 2FA a bezpečnost, jednodušší UX, méně kódu k udržení</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= SLIDE 5: Architektura projektu ======= -->
+  <div class="slide" id="slide-5">
+    <h3>Projekt</h3>
+    <h2>Turnajový systém — <span class="accent-blue">Architektura</span></h2>
+    <div class="separator"></div>
+    <div class="two-col">
+      <div>
+        <p>Dva typy uživatelů, oba přihlášeni přes Google OAuth2:</p>
+        <div class="model-diagram">
+          <div><span class="mn mn-grey">auth.User</span> ── <span class="mn mn-blue">Player</span> ──┐</div>
+          <div style="padding-left:120px">├── <span class="mn mn-green">Team</span> ──┐</div>
+          <div><span class="mn mn-grey">auth.User</span> ── <span class="mn mn-red">Founder</span> ─┘&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── <span class="mn mn-yellow">Tournament</span></div>
+          <div style="padding-left:200px">└── <span class="mn mn-yellow">Match</span></div>
+        </div>
+        <p style="margin-top:14px; font-size:.88rem">Po přihlášení přes Google → výběr role (<code>/role-select/</code>) → přesměrování na příslušný dashboard</p>
+      </div>
+      <div>
+        <p style="font-size:.82rem; color:#9aa0a6; margin-bottom:6px">models.py (zkráceno)</p>
+        <pre><code><span class="kw">class</span> <span class="cl">Player</span>(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        related_name=<span class="st">'player_profile'</span>
+    )
+    fname = models.CharField(max_length=<span class="nu">50</span>)
+    lname = models.CharField(max_length=<span class="nu">50</span>)
+
+<span class="kw">class</span> <span class="cl">Team</span>(models.Model):
+    name    = models.CharField(max_length=<span class="nu">20</span>)
+    tag     = models.CharField(max_length=<span class="nu">3</span>)
+    players = models.ManyToManyField(Player)</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= SLIDE 6: Konfigurace Django ======= -->
+  <div class="slide" id="slide-6">
+    <h3>Praktická konfigurace</h3>
+    <h2><span class="accent-blue">django-allauth</span> — instalace a nastavení</h2>
+    <div class="separator"></div>
+    <div class="two-col">
+      <div>
+        <p style="font-size:.82rem; color:#9aa0a6; margin-bottom:4px">requirements.txt</p>
+        <pre><code>Django&gt;=5.2
+django-allauth[google]
+PyJWT
+python-dotenv</code></pre>
+        <p style="font-size:.82rem; color:#9aa0a6; margin-bottom:4px">INSTALLED_APPS</p>
+        <pre><code><span class="st">'django.contrib.sites'</span>,
+<span class="st">'allauth'</span>,
+<span class="st">'allauth.account'</span>,
+<span class="st">'allauth.socialaccount'</span>,
+<span class="st">'allauth.socialaccount.providers.google'</span>,</code></pre>
+      </div>
+      <div>
+        <p style="font-size:.82rem; color:#9aa0a6; margin-bottom:4px">settings.py — OAuth konfigurace z .env</p>
+        <pre><code>SOCIALACCOUNT_PROVIDERS = {
+    <span class="st">'google'</span>: {
+        <span class="st">'SCOPE'</span>: [<span class="st">'profile'</span>, <span class="st">'email'</span>],
+        <span class="st">'APP'</span>: {
+            <span class="st">'client_id'</span>: os.environ.get(
+                <span class="st">'GOOGLE_CLIENT_ID'</span>),
+            <span class="st">'secret'</span>: os.environ.get(
+                <span class="st">'GOOGLE_CLIENT_SECRET'</span>),
+        }
+    }
+}
+SOCIALACCOUNT_AUTO_SIGNUP = <span class="nu">True</span>
+SOCIALACCOUNT_LOGIN_ON_GET = <span class="nu">True</span>
+ACCOUNT_LOGOUT_ON_GET     = <span class="nu">True</span>
+SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = <span class="nu">True</span></code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= SLIDE 7: Google Cloud Console ======= -->
+  <div class="slide" id="slide-7">
+    <h3>Praktická konfigurace</h3>
+    <h2><span class="accent-red">Google Cloud Console</span> — přihlašovací údaje</h2>
+    <div class="separator"></div>
+    <div class="two-col">
+      <ol class="flow-steps">
+        <li>Vytvořit projekt na <strong>console.cloud.google.com</strong></li>
+        <li><em>APIs &amp; Services</em> → <em>OAuth consent screen</em> → vyplnit název aplikace a email</li>
+        <li><em>Credentials</em> → <em>Create credentials</em> → <em>OAuth 2.0 Client ID</em></li>
+        <li>Application type: <strong>Web application</strong></li>
+        <li>Authorized redirect URI:<br><code>http://127.0.0.1:8000/accounts/google/login/callback/</code></li>
+        <li>Zkopírovat <strong>Client ID</strong> a <strong>Client Secret</strong> do souboru <code>.env</code></li>
+      </ol>
+      <div>
+        <p style="font-size:.82rem; color:#9aa0a6; margin-bottom:6px">Soubor .env (nezveřejňovat, v .gitignore)</p>
+        <pre><code>DJANGO_SECRET_KEY=...
+
+<span class="cm"># Google OAuth2 credentials</span>
+GOOGLE_CLIENT_ID=<span class="st">520054...googleusercontent.com</span>
+GOOGLE_CLIENT_SECRET=<span class="st">GOCSPX-...</span></code></pre>
+        <div class="card red" style="margin-top:14px">
+          <h4 class="accent-red">Bezpečnost</h4>
+          <p>Soubor <code>.env</code> je v <code>.gitignore</code> — credentials se nikdy nekomitují do repozitáře.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= SLIDE 8: Přístupová ochrana ======= -->
+  <div class="slide" id="slide-8">
+    <h3>Řešení</h3>
+    <h2>Přístupová ochrana — <span class="accent-green">dekorátory</span></h2>
+    <div class="separator"></div>
+    <div class="two-col">
+      <div>
+        <p>Vlastní dekorátory v <code>decorators.py</code> chrání views před neoprávněným přístupem:</p>
+        <pre><code><span class="kw">def</span> <span class="fn">player_required</span>(view_func):
+    <span class="kw">@wraps</span>(view_func)
+    <span class="kw">def</span> <span class="fn">wrapper</span>(request, *args, **kwargs):
+        <span class="kw">if not</span> request.user.is_authenticated:
+            <span class="kw">return</span> redirect(<span class="st">'account_login'</span>)
+        <span class="kw">if</span> <span class="fn">hasattr</span>(request.user,
+                   <span class="st">'founder_profile'</span>):
+            <span class="kw">return</span> redirect(<span class="st">'founder_dashboard'</span>)
+        <span class="kw">if not</span> <span class="fn">hasattr</span>(request.user,
+                      <span class="st">'player_profile'</span>):
+            <span class="kw">return</span> redirect(<span class="st">'role_select'</span>)
+        <span class="kw">return</span> view_func(request, *args, **kwargs)
+    <span class="kw">return</span> wrapper</code></pre>
+      </div>
+      <div>
+        <p>Použití v <code>views.py</code>:</p>
+        <pre><code><span class="kw">@player_required</span>
+<span class="kw">def</span> <span class="fn">player_dashboard</span>(request):
+    ...
+
+<span class="kw">@founder_required</span>
+<span class="kw">def</span> <span class="fn">founder_dashboard</span>(request):
+    ...</code></pre>
+        <div class="card blue" style="margin-top:14px">
+          <h4 class="accent-blue">Logika přesměrování</h4>
+          <p>Nepřihlášený → login<br>
+          Hráč na founder URL → přesměrování<br>
+          Bez role → výběr role</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= SLIDE 9: WireShark ======= -->
+  <div class="slide" id="slide-9">
+    <h3>Analýza síťové komunikace</h3>
+    <h2><span class="accent-blue">Wireshark</span> — OAuth2 HTTP provoz</h2>
+    <div class="separator"></div>
+    <p style="font-size:.9rem">Wireshark zachytává HTTP/HTTPS pakety během OAuth2 přihlašovacího procesu. Kliknutím na placeholder vložíte screenshot.</p>
+    <div class="ws-grid" id="ws-grid">
+
+      <div class="ws-placeholder" id="ws-1">
+        <input type="file" accept="image/*" onchange="loadWsImage(event,'ws-1')">
+        <div class="ws-icon">🔍</div>
+        <div class="ws-label">1. Počáteční GET požadavek</div>
+        <div class="ws-desc"><code>GET /accounts/google/login/</code><br>Přesměrování na Google OAuth server</div>
+        <div class="ws-hint">Klikněte pro vložení screenshotu</div>
+      </div>
+
+      <div class="ws-placeholder" id="ws-2">
+        <input type="file" accept="image/*" onchange="loadWsImage(event,'ws-2')">
+        <div class="ws-icon">🔐</div>
+        <div class="ws-label">2. Google consent screen</div>
+        <div class="ws-desc"><code>GET accounts.google.com/o/oauth2/auth</code><br>Parametry: client_id, scope, redirect_uri</div>
+        <div class="ws-hint">Klikněte pro vložení screenshotu</div>
+      </div>
+
+      <div class="ws-placeholder" id="ws-3">
+        <input type="file" accept="image/*" onchange="loadWsImage(event,'ws-3')">
+        <div class="ws-icon">↩️</div>
+        <div class="ws-label">3. Callback s authorization code</div>
+        <div class="ws-desc"><code>GET /accounts/google/login/callback/?code=…</code><br>Google vrací jednorázový kód</div>
+        <div class="ws-hint">Klikněte pro vložení screenshotu</div>
+      </div>
+
+      <div class="ws-placeholder" id="ws-4">
+        <input type="file" accept="image/*" onchange="loadWsImage(event,'ws-4')">
+        <div class="ws-icon">🎫</div>
+        <div class="ws-label">4. Token exchange</div>
+        <div class="ws-desc"><code>POST oauth2.googleapis.com/token</code><br>Server vymění kód za access_token + id_token</div>
+        <div class="ws-hint">Klikněte pro vložení screenshotu</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ======= SLIDE 10: Závěr ======= -->
+  <div class="slide" id="slide-10">
+    <h3>Závěr</h3>
+    <h2>Výsledek a <span class="accent-blue">vlastní názor</span></h2>
+    <div class="separator"></div>
+    <p>Projekt demonstruje kompletní OAuth2 flow s Google API v Django aplikaci. Turnajový systém umožňuje správu hráčů, týmů, turnajů a zápasů, přičemž veškerá autentizace probíhá přes Google.</p>
+    <div class="opinion-box">
+      „OAuth2 přes Google je z pohledu vývojáře výrazně pohodlnější než vlastní autentizační systém — odpadá správa hesel, hashování, reset flow a email verifikace. Knihovna django-allauth celý proces abstrahuje do několika řádků konfigurace. Největším úskalím byla správná volba závislostí (PyJWT vs jwt) a pochopení, jak allauth řeší kolize emailů mezi poskytovateli. Pro školní i komerční projekty doporučuji OAuth2 jako první volbu pro autentizaci."
+    </div>
+    <div class="card-grid" style="margin-top: 16px;">
+      <div class="card green">
+        <h4 class="accent-green">Co funguje dobře</h4>
+        <p>Jednoduchá integrace, bezpečné uložení credentials, automatická správa tokenů</p>
+      </div>
+      <div class="card yellow">
+        <h4 class="accent-yellow">Omezení</h4>
+        <p>Závislost na Google API, nutnost Google Cloud Console, callbacks pouze přes HTTPS v produkci</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= SLIDE 11: Literatura ======= -->
+  <div class="slide" id="slide-11">
+    <h3>Použitá literatura</h3>
+    <h2>Zdroje a <span class="accent-blue">reference</span></h2>
+    <div class="separator"></div>
+    <ul class="lit-list">
+      <li>
+        <span class="num">[1]</span>
+        <div>HARDT, D. <em>The OAuth 2.0 Authorization Framework.</em> RFC 6749. IETF, 2012. Dostupné z: <a href="https://datatracker.ietf.org/doc/html/rfc6749" target="_blank">datatracker.ietf.org/doc/html/rfc6749</a></div>
+      </li>
+      <li>
+        <span class="num">[2]</span>
+        <div>Django Software Foundation. <em>Django Documentation — Authentication.</em> 2024. Dostupné z: <a href="https://docs.djangoproject.com/en/5.2/topics/auth/" target="_blank">docs.djangoproject.com</a></div>
+      </li>
+      <li>
+        <span class="num">[3]</span>
+        <div>Pennersr, R. et al. <em>django-allauth Documentation.</em> 2024. Dostupné z: <a href="https://docs.allauth.org/" target="_blank">docs.allauth.org</a></div>
+      </li>
+      <li>
+        <span class="num">[4]</span>
+        <div>Google LLC. <em>Google Identity — OAuth 2.0 for Web Server Applications.</em> Dostupné z: <a href="https://developers.google.com/identity/protocols/oauth2/web-server" target="_blank">developers.google.com/identity/protocols/oauth2</a></div>
+      </li>
+      <li>
+        <span class="num">[5]</span>
+        <div>Google LLC. <em>Google Cloud Console — OAuth 2.0 Credentials.</em> Dostupné z: <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a></div>
+      </li>
+      <li>
+        <span class="num">[6]</span>
+        <div>Python Software Foundation. <em>PyJWT — JSON Web Tokens in Python.</em> Dostupné z: <a href="https://pyjwt.readthedocs.io/" target="_blank">pyjwt.readthedocs.io</a></div>
+      </li>
+      <li>
+        <span class="num">[7]</span>
+        <div>Wireshark Foundation. <em>Wireshark User's Guide.</em> Dostupné z: <a href="https://www.wireshark.org/docs/" target="_blank">wireshark.org/docs</a></div>
+      </li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- Navigace -->
+<div class="nav">
+  <button id="prev" onclick="changeSlide(-1)" disabled>&#8592; Zpět</button>
+  <span class="slide-counter" id="slide-counter"></span>
+  <button id="next" onclick="changeSlide(1)">Další &#8594;</button>
+</div>
+
+<script>
+  const TOTAL = 11;
+  let current = 1;
+
+  function changeSlide(dir) {
+    document.getElementById('slide-' + current).classList.remove('active');
+    current = Math.max(1, Math.min(TOTAL, current + dir));
+    const slide = document.getElementById('slide-' + current);
+    slide.classList.add('active');
+    slide.scrollTop = 0;
+    updateUI();
+  }
+
+  function updateUI() {
+    document.getElementById('prev').disabled = current === 1;
+    document.getElementById('next').disabled = current === TOTAL;
+    document.getElementById('slide-counter').textContent = current + ' / ' + TOTAL;
+    document.getElementById('progress').style.width = (current / TOTAL * 100) + '%';
+  }
+
+  function loadWsImage(event, id) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const placeholder = document.getElementById(id);
+      const existing = placeholder.querySelector('img');
+      if (existing) existing.remove();
+      const img = document.createElement('img');
+      img.src = e.target.result;
+      placeholder.insertBefore(img, placeholder.querySelector('.ws-icon'));
+      placeholder.classList.add('has-image');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      if (current < TOTAL) changeSlide(1);
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      if (current > 1) changeSlide(-1);
+    }
+  });
+
+  updateUI();
+</script>
+</body>
+</html>
