@@ -2,3 +2,5 @@ Django>=5.2
 django-bootstrap5
 django-allauth[google]
 python-dotenv
+requests
+PyJWT
