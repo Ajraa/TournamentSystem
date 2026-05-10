@@ -648,39 +648,51 @@ GOOGLE_CLIENT_SECRET=<span class="st">GOCSPX-...</span></code></pre>
     <h3>Analýza síťové komunikace</h3>
     <h2><span class="accent-blue">Wireshark</span> — OAuth2 HTTP provoz</h2>
     <div class="separator"></div>
-    <p style="font-size:.9rem">Wireshark zachytává HTTP/HTTPS pakety během OAuth2 přihlašovacího procesu. Kliknutím na placeholder vložíte screenshot.</p>
+    <p style="font-size:.9rem">Wireshark zachytává HTTP/HTTPS pakety během OAuth2 přihlašovacího procesu — kroky 1 a 3 na loopback rozhraní (127.0.0.1:8000), kroky 2 a 4 na síťovém rozhraní (port 443, TLS).</p>
     <div class="ws-grid" id="ws-grid">
 
-      <div class="ws-placeholder" id="ws-1">
-        <input type="file" accept="image/*" onchange="loadWsImage(event,'ws-1')">
-        <div class="ws-icon">🔍</div>
-        <div class="ws-label">1. Počáteční GET požadavek</div>
-        <div class="ws-desc"><code>GET /accounts/google/login/</code><br>Přesměrování na Google OAuth server</div>
-        <div class="ws-hint">Klikněte pro vložení screenshotu</div>
+      <div class="ws-placeholder has-image" id="ws-1" style="grid-column: 1 / -1; cursor: default;">
+        <div class="ws-label" style="font-size:1rem; margin-bottom:8px;">1. Počáteční GET požadavek — <code style="font-size:.85rem">GET /accounts/google/login/</code></div>
+        <img src="wireshark_login.png" alt="Wireshark — GET /accounts/google/login/" style="max-width:100%; max-height:200px; border-radius:8px; object-fit:contain; margin-bottom:10px;">
+        <div class="ws-desc" style="font-size:.82rem; color:#9aa0a6; text-align:left; max-width:860px;">
+          Prohlížeč odesílá <code>GET /accounts/google/login/ HTTP/1.1</code> na lokální Django server (127.0.0.1:8000).
+          Django odpovídá <code>302 Found</code> a přesměrovává prohlížeč na Google OAuth server —
+          URL obsahuje parametry <code>client_id</code>, <code>scope</code> a <code>redirect_uri</code>.
+        </div>
       </div>
 
-      <div class="ws-placeholder" id="ws-2">
-        <input type="file" accept="image/*" onchange="loadWsImage(event,'ws-2')">
-        <div class="ws-icon">🔐</div>
-        <div class="ws-label">2. Google consent screen</div>
-        <div class="ws-desc"><code>GET accounts.google.com/o/oauth2/auth</code><br>Parametry: client_id, scope, redirect_uri</div>
-        <div class="ws-hint">Klikněte pro vložení screenshotu</div>
+      <div class="ws-placeholder has-image" id="ws-2" style="grid-column: 1 / -1; cursor: default;">
+        <div class="ws-label" style="font-size:1rem; margin-bottom:8px;">2. TLS handshake — <code style="font-size:.85rem">accounts.google.com</code></div>
+        <img src="wireshark_handshake.png" alt="Wireshark — TLS handshake s accounts.google.com" style="max-width:100%; max-height:340px; border-radius:8px; object-fit:contain; margin-bottom:10px;">
+        <div class="ws-desc" style="font-size:.82rem; color:#9aa0a6; text-align:left; max-width:860px;">
+          TCP three-way handshake (SYN → SYN-ACK → ACK) na port&nbsp;443, poté TLS&nbsp;1.3 Client Hello
+          se SNI&nbsp;=&nbsp;<em>accounts.google.com</em>. Google odpovídá Server Hello + Change Cipher Spec.
+          Následující Application Data obsahují šifrovanou consent page — stránku, kde uživatel schvaluje
+          přístup k profilu a e-mailu.
+        </div>
       </div>
 
-      <div class="ws-placeholder" id="ws-3">
-        <input type="file" accept="image/*" onchange="loadWsImage(event,'ws-3')">
-        <div class="ws-icon">↩️</div>
-        <div class="ws-label">3. Callback s authorization code</div>
-        <div class="ws-desc"><code>GET /accounts/google/login/callback/?code=…</code><br>Google vrací jednorázový kód</div>
-        <div class="ws-hint">Klikněte pro vložení screenshotu</div>
+      <div class="ws-placeholder has-image" id="ws-3" style="grid-column: 1 / -1; cursor: default;">
+        <div class="ws-label" style="font-size:1rem; margin-bottom:8px;">3. Callback s authorization code — <code style="font-size:.85rem">GET /accounts/google/login/callback/?code=…</code></div>
+        <img src="wireshark_callback.png" alt="Wireshark — callback s authorization code" style="max-width:100%; max-height:200px; border-radius:8px; object-fit:contain; margin-bottom:10px;">
+        <div class="ws-desc" style="font-size:.82rem; color:#9aa0a6; text-align:left; max-width:860px;">
+          Google přesměruje prohlížeč zpět na Django s jednorázovým <code>code</code> a parametrem <code>state</code>
+          v URL. Django zachytí tento požadavek, ověří <code>state</code> proti CSRF tokenu a následně
+          vymění <code>code</code> za přístupové tokeny voláním Google API na straně serveru.
+          Django odpovídá <code>302 Found</code> a přesměrovává uživatele na dashboard.
+        </div>
       </div>
 
-      <div class="ws-placeholder" id="ws-4">
-        <input type="file" accept="image/*" onchange="loadWsImage(event,'ws-4')">
-        <div class="ws-icon">🎫</div>
-        <div class="ws-label">4. Token exchange</div>
-        <div class="ws-desc"><code>POST oauth2.googleapis.com/token</code><br>Server vymění kód za access_token + id_token</div>
-        <div class="ws-hint">Klikněte pro vložení screenshotu</div>
+      <div class="ws-placeholder has-image" id="ws-4" style="grid-column: 1 / -1; cursor: default;">
+        <div class="ws-label" style="font-size:1rem; margin-bottom:8px;">4. Token exchange — <code style="font-size:.85rem">POST oauth2.googleapis.com/token</code></div>
+        <img src="wireshark_komunikace.png" alt="Wireshark — token exchange s oauth2.googleapis.com" style="max-width:100%; max-height:340px; border-radius:8px; object-fit:contain; margin-bottom:10px;">
+        <div class="ws-desc" style="font-size:.82rem; color:#9aa0a6; text-align:left; max-width:860px;">
+          Zachycené pakety: TCP handshake (SYN → SYN‑ACK → ACK) na port&nbsp;443, poté TLS&nbsp;1.3 Client Hello
+          se SNI&nbsp;=&nbsp;<em>oauth2.googleapis.com</em>. Po výměně šifrovacích parametrů (Server Hello, Change Cipher Spec)
+          proběhne šifrovaná Application Data — sem patří POST požadavek, v němž backend odesílá
+          <code>code</code> a <code>client_secret</code> a přijímá <code>access_token</code> + <code>id_token</code>.
+          Spojení je ukončeno FIN/ACK sekvencí.
+        </div>
       </div>
 
     </div>
