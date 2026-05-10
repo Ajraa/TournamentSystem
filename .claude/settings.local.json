@@ -9,7 +9,8 @@
       "Bash(venv/Scripts/python -c \"import bootstrap5; print\\('OK:', bootstrap5.__file__\\)\")",
       "Bash(venv/Scripts/pip show *)",
       "Bash(venv/Scripts/pip install *)",
-      "Bash(venv/Scripts/python manage.py check)"
+      "Bash(venv/Scripts/python manage.py check)",
+      "Bash(python -c ' *)"
     ]
   }
 }

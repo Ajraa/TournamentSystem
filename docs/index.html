@@ -5,10 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Django + Google OAuth2 | Prezentace</title>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Sora:wght@400;600;700&display=swap');
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    font-family: 'Segoe UI', Arial, sans-serif;
+    font-family: 'Sora', 'Segoe UI', sans-serif;
     background: #0f1117;
     color: #e8eaed;
     height: 100vh;
@@ -43,13 +45,11 @@
     to   { opacity: 1; transform: translateY(0); }
   }
 
-  /* Google akcenty */
   .accent-blue   { color: #4285F4; }
   .accent-red    { color: #EA4335; }
   .accent-green  { color: #34A853; }
   .accent-yellow { color: #FBBC05; }
 
-  /* Progress bar */
   .progress {
     position: fixed;
     top: 0; left: 0;
@@ -80,6 +80,7 @@
     cursor: pointer;
     font-size: 14px;
     transition: background .2s;
+    font-family: inherit;
   }
 
   .nav button:hover:not(:disabled) { background: #2d3142; }
@@ -88,8 +89,68 @@
   .slide-counter {
     font-size: 13px;
     color: #5f6368;
-    min-width: 50px;
+    min-width: 60px;
     text-align: center;
+  }
+
+  /* Notes toggle button */
+  .notes-toggle {
+    position: fixed;
+    bottom: 18px;
+    right: 24px;
+    background: #1e2129;
+    border: 1px solid #3c4049;
+    color: #9aa0a6;
+    padding: 7px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all .2s;
+    z-index: 100;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .notes-toggle:hover { background: #2d3142; color: #e8eaed; }
+  .notes-toggle.active { background: #1a2744; border-color: #4285F4; color: #4285F4; }
+
+  /* Dialog / Speaker Notes Panel */
+  .notes-panel {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: #13161d;
+    border-top: 2px solid #4285F4;
+    padding: 18px 80px 72px;
+    z-index: 99;
+    transform: translateY(100%);
+    transition: transform .35s cubic-bezier(.4,0,.2,1);
+    min-height: 140px;
+    max-height: 200px;
+  }
+
+  .notes-panel.open {
+    transform: translateY(0);
+  }
+
+  .notes-panel-header {
+    font-size: .72rem;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: #4285F4;
+    font-weight: 600;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .notes-text {
+    font-size: .95rem;
+    color: #bdc1c6;
+    line-height: 1.75;
+    max-width: 900px;
   }
 
   /* Typografie */
@@ -115,7 +176,6 @@
     margin: 14px 0 22px;
   }
 
-  /* Tagy */
   .tag {
     display: inline-block;
     background: #1a2744;
@@ -127,7 +187,6 @@
     margin: 3px;
   }
 
-  /* Karty */
   .card-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -150,9 +209,8 @@
   .card.green  { border-top: 3px solid #34A853; }
   .card.yellow { border-top: 3px solid #FBBC05; }
 
-  /* Kód */
   pre, code {
-    font-family: 'Consolas', 'Fira Code', monospace;
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
     font-size: .85rem;
   }
 
@@ -173,7 +231,6 @@
   .cl { color: #ffa657; }
   .nu { color: #79c0ff; }
 
-  /* Dvousloupcový layout */
   .two-col {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -181,7 +238,6 @@
     align-items: start;
   }
 
-  /* Číslované kroky */
   .flow-steps {
     counter-reset: step;
     list-style: none;
@@ -214,7 +270,6 @@
     margin-top: 1px;
   }
 
-  /* Architektonický diagram — CSS boxy místo ASCII */
   .arch-flow {
     background: #161b22;
     border: 1px solid #30363d;
@@ -244,7 +299,6 @@
     text-align: center;
   }
 
-  /* Datový model */
   .model-diagram {
     background: #161b22;
     border: 1px solid #30363d;
@@ -263,7 +317,6 @@
   .mn-green  { border-color: #34A853; }
   .mn-yellow { border-color: #FBBC05; }
 
-  /* Literatura */
   .lit-list { list-style: none; margin-top: 8px; }
 
   .lit-list li {
@@ -283,7 +336,6 @@
   .lit-list a { color: #8ab4f8; text-decoration: none; }
   .lit-list a:hover { text-decoration: underline; }
 
-  /* Citát */
   .opinion-box {
     background: linear-gradient(135deg, #1a2744, #1e2129);
     border: 1px solid #2d4a8a;
@@ -297,11 +349,9 @@
     font-size: .97rem;
   }
 
-  /* Google tečky na titulní stránce */
   .google-dots { display: flex; gap: 10px; margin-bottom: 24px; }
   .google-dot  { width: 16px; height: 16px; border-radius: 50%; }
 
-  /* Autoři */
   .authors {
     margin-top: 32px;
     display: flex;
@@ -318,58 +368,87 @@
   .author-name  { font-size: 1rem; font-weight: 600; color: #e8eaed; }
   .author-login { font-size: .82rem; color: #4285F4; font-family: monospace; margin-top: 2px; }
 
-  /* WireShark placeholder */
-  .ws-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-top: 8px;
-  }
-
-  .ws-placeholder {
-    background: #161b22;
-    border: 2px dashed #3c4049;
-    border-radius: 10px;
-    min-height: 180px;
+  /* ======= Wireshark slide styles ======= */
+  .ws-slide {
     display: flex;
     flex-direction: column;
+  }
+
+  .ws-step-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #1a2744;
+    border: 1px solid #2d4a8a;
+    border-radius: 20px;
+    padding: 4px 14px 4px 6px;
+    margin-bottom: 6px;
+    width: fit-content;
+  }
+
+  .ws-step-num {
+    background: #4285F4;
+    color: #fff;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    padding: 20px;
-    text-align: center;
-    transition: border-color .2s;
-    cursor: pointer;
-    position: relative;
+    font-size: .8rem;
+    font-weight: 700;
   }
 
-  .ws-placeholder:hover { border-color: #4285F4; }
-
-  .ws-placeholder input[type="file"] {
-    position: absolute; inset: 0;
-    opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  .ws-step-label {
+    font-size: .82rem;
+    color: #8ab4f8;
+    font-weight: 600;
   }
 
-  .ws-placeholder img {
-    max-width: 100%; max-height: 150px;
-    border-radius: 6px; object-fit: contain;
+  .ws-img-container {
+    background: #fff;
+    border: 1px solid #30363d;
+    border-radius: 10px;
+    padding: 8px;
+    margin: 10px 0;
+    overflow: hidden;
   }
 
-  .ws-icon { font-size: 2rem; }
-  .ws-label { font-size: .95rem; font-weight: 600; color: #e8eaed; }
-  .ws-desc  { font-size: .8rem; color: #5f6368; }
-  .ws-hint  { font-size: .75rem; color: #3c4049; margin-top: 4px; }
+  .ws-img-container img {
+    width: 100%;
+    max-height: 58vh;
+    border-radius: 4px;
+    object-fit: contain;
+    display: block;
+  }
 
-  .ws-placeholder.has-image .ws-hint,
-  .ws-placeholder.has-image .ws-icon { display: none; }
+  .ws-desc-box {
+    background: #1e2129;
+    border: 1px solid #3c4049;
+    border-left: 3px solid #4285F4;
+    border-radius: 6px;
+    padding: 14px 18px;
+    font-size: .9rem;
+    color: #bdc1c6;
+    line-height: 1.7;
+  }
+
+  .ws-desc-box code {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-size: .82rem;
+    color: #a5d6ff;
+  }
 
   @media (max-width: 900px) {
     .slide { padding: 40px 28px 80px; }
     h1 { font-size: 1.9rem; }
     h2 { font-size: 1.4rem; }
-    .two-col, .ws-grid { grid-template-columns: 1fr; }
+    .two-col { grid-template-columns: 1fr; }
     .card-grid { grid-template-columns: 1fr 1fr; }
     .authors { flex-direction: column; gap: 12px; }
+    .notes-panel { padding: 18px 28px 72px; }
   }
 </style>
 </head>
@@ -455,7 +534,7 @@
         <div class="arch-node" style="border-color:#4285F4">Prohlížeč</div>
         <div class="arch-arrow">↕ přesměrování (redirect)</div>
         <div class="arch-node" style="border-color:#EA4335">Google OAuth Server</div>
-        <div class="arch-arrow">↕ auth code &rarr; token exchange</div>
+        <div class="arch-arrow">↕ auth code → token exchange</div>
         <div class="arch-node" style="border-color:#34A853">Django Backend</div>
         <div class="arch-arrow">↕ GET /userinfo</div>
         <div class="arch-node" style="border-color:#FBBC05">Google People API</div>
@@ -643,63 +722,90 @@ GOOGLE_CLIENT_SECRET=<span class="st">GOCSPX-...</span></code></pre>
     </div>
   </div>
 
-  <!-- ======= SLIDE 9: WireShark ======= -->
+  <!-- ======= SLIDE 9: WireShark — krok 1 ======= -->
   <div class="slide" id="slide-9">
-    <h3>Analýza síťové komunikace</h3>
-    <h2><span class="accent-blue">Wireshark</span> — OAuth2 HTTP provoz</h2>
+    <h3>Analýza síťové komunikace · krok 1 / 4</h3>
+    <h2><span class="accent-blue">Počáteční GET požadavek</span></h2>
     <div class="separator"></div>
-    <p style="font-size:.9rem">Wireshark zachytává HTTP/HTTPS pakety během OAuth2 přihlašovacího procesu — kroky 1 a 3 na loopback rozhraní (127.0.0.1:8000), kroky 2 a 4 na síťovém rozhraní (port 443, TLS).</p>
-    <div class="ws-grid" id="ws-grid">
-
-      <div class="ws-placeholder has-image" id="ws-1" style="grid-column: 1 / -1; cursor: default;">
-        <div class="ws-label" style="font-size:1rem; margin-bottom:8px;">1. Počáteční GET požadavek — <code style="font-size:.85rem">GET /accounts/google/login/</code></div>
-        <img src="wireshark_login.png" alt="Wireshark — GET /accounts/google/login/" style="max-width:100%; max-height:200px; border-radius:8px; object-fit:contain; margin-bottom:10px;">
-        <div class="ws-desc" style="font-size:.82rem; color:#9aa0a6; text-align:left; max-width:860px;">
-          Prohlížeč odesílá <code>GET /accounts/google/login/ HTTP/1.1</code> na lokální Django server (127.0.0.1:8000).
-          Django odpovídá <code>302 Found</code> a přesměrovává prohlížeč na Google OAuth server —
-          URL obsahuje parametry <code>client_id</code>, <code>scope</code> a <code>redirect_uri</code>.
-        </div>
-      </div>
-
-      <div class="ws-placeholder has-image" id="ws-2" style="grid-column: 1 / -1; cursor: default;">
-        <div class="ws-label" style="font-size:1rem; margin-bottom:8px;">2. TLS handshake — <code style="font-size:.85rem">accounts.google.com</code></div>
-        <img src="wireshark_handshake.png" alt="Wireshark — TLS handshake s accounts.google.com" style="max-width:100%; max-height:340px; border-radius:8px; object-fit:contain; margin-bottom:10px;">
-        <div class="ws-desc" style="font-size:.82rem; color:#9aa0a6; text-align:left; max-width:860px;">
-          TCP three-way handshake (SYN → SYN-ACK → ACK) na port&nbsp;443, poté TLS&nbsp;1.3 Client Hello
-          se SNI&nbsp;=&nbsp;<em>accounts.google.com</em>. Google odpovídá Server Hello + Change Cipher Spec.
-          Následující Application Data obsahují šifrovanou consent page — stránku, kde uživatel schvaluje
-          přístup k profilu a e-mailu.
-        </div>
-      </div>
-
-      <div class="ws-placeholder has-image" id="ws-3" style="grid-column: 1 / -1; cursor: default;">
-        <div class="ws-label" style="font-size:1rem; margin-bottom:8px;">3. Callback s authorization code — <code style="font-size:.85rem">GET /accounts/google/login/callback/?code=…</code></div>
-        <img src="wireshark_callback.png" alt="Wireshark — callback s authorization code" style="max-width:100%; max-height:200px; border-radius:8px; object-fit:contain; margin-bottom:10px;">
-        <div class="ws-desc" style="font-size:.82rem; color:#9aa0a6; text-align:left; max-width:860px;">
-          Google přesměruje prohlížeč zpět na Django s jednorázovým <code>code</code> a parametrem <code>state</code>
-          v URL. Django zachytí tento požadavek, ověří <code>state</code> proti CSRF tokenu a následně
-          vymění <code>code</code> za přístupové tokeny voláním Google API na straně serveru.
-          Django odpovídá <code>302 Found</code> a přesměrovává uživatele na dashboard.
-        </div>
-      </div>
-
-      <div class="ws-placeholder has-image" id="ws-4" style="grid-column: 1 / -1; cursor: default;">
-        <div class="ws-label" style="font-size:1rem; margin-bottom:8px;">4. Token exchange — <code style="font-size:.85rem">POST oauth2.googleapis.com/token</code></div>
-        <img src="wireshark_komunikace.png" alt="Wireshark — token exchange s oauth2.googleapis.com" style="max-width:100%; max-height:340px; border-radius:8px; object-fit:contain; margin-bottom:10px;">
-        <div class="ws-desc" style="font-size:.82rem; color:#9aa0a6; text-align:left; max-width:860px;">
-          Zachycené pakety: TCP handshake (SYN → SYN‑ACK → ACK) na port&nbsp;443, poté TLS&nbsp;1.3 Client Hello
-          se SNI&nbsp;=&nbsp;<em>oauth2.googleapis.com</em>. Po výměně šifrovacích parametrů (Server Hello, Change Cipher Spec)
-          proběhne šifrovaná Application Data — sem patří POST požadavek, v němž backend odesílá
-          <code>code</code> a <code>client_secret</code> a přijímá <code>access_token</code> + <code>id_token</code>.
-          Spojení je ukončeno FIN/ACK sekvencí.
-        </div>
-      </div>
-
+    <div class="ws-step-badge">
+      <div class="ws-step-num">1</div>
+      <span class="ws-step-label">GET /accounts/google/login/ → 302 Found</span>
+    </div>
+    <div class="ws-img-container">
+      <img src="wireshark_login.png" alt="Wireshark — GET /accounts/google/login/">
+    </div>
+    <div class="ws-desc-box">
+      Prohlížeč odesílá <code>GET /accounts/google/login/ HTTP/1.1</code> na lokální Django server
+      (<code>127.0.0.1:8000</code>). Django odpovídá <code>302 Found</code> a přesměrovává prohlížeč
+      na Google OAuth server — URL obsahuje parametry <code>client_id</code>, <code>scope</code>
+      a <code>redirect_uri</code>.
     </div>
   </div>
 
-  <!-- ======= SLIDE 10: Závěr ======= -->
+  <!-- ======= SLIDE 10: WireShark — krok 2 ======= -->
   <div class="slide" id="slide-10">
+    <h3>Analýza síťové komunikace · krok 2 / 4</h3>
+    <h2><span class="accent-blue">TLS Handshake</span> — <code style="font-size:1.3rem">accounts.google.com</code></h2>
+    <div class="separator"></div>
+    <div class="ws-step-badge">
+      <div class="ws-step-num">2</div>
+      <span class="ws-step-label">TCP SYN → SYN-ACK → ACK · TLS 1.3 Client Hello</span>
+    </div>
+    <div class="ws-img-container">
+      <img src="wireshark_handshake.png" alt="Wireshark — TLS handshake s accounts.google.com">
+    </div>
+    <div class="ws-desc-box">
+      TCP three-way handshake (SYN → SYN-ACK → ACK) na port <code>443</code>, poté TLS 1.3
+      <code>Client Hello</code> se SNI = <em>accounts.google.com</em>. Google odpovídá
+      <code>Server Hello</code> + <code>Change Cipher Spec</code>. Následující
+      <code>Application Data</code> obsahují šifrovanou consent page — stránku, kde uživatel
+      schvaluje přístup k profilu a e-mailu.
+    </div>
+  </div>
+
+  <!-- ======= SLIDE 11: WireShark — krok 3 ======= -->
+  <div class="slide" id="slide-11">
+    <h3>Analýza síťové komunikace · krok 3 / 4</h3>
+    <h2><span class="accent-green">Callback</span> s Authorization Code</h2>
+    <div class="separator"></div>
+    <div class="ws-step-badge">
+      <div class="ws-step-num" style="background:#34A853">3</div>
+      <span class="ws-step-label">GET /accounts/google/login/callback/?code=…&amp;state=…</span>
+    </div>
+    <div class="ws-img-container">
+      <img src="wireshark_callback.png" alt="Wireshark — callback s authorization code">
+    </div>
+    <div class="ws-desc-box">
+      Google přesměruje prohlížeč zpět na Django s jednorázovým <code>code</code> a parametrem
+      <code>state</code> v URL. Django zachytí tento požadavek, ověří <code>state</code> proti
+      CSRF tokenu a následně vymění <code>code</code> za přístupové tokeny voláním Google API
+      na straně serveru. Django odpovídá <code>302 Found</code> a přesměrovává uživatele na dashboard.
+    </div>
+  </div>
+
+  <!-- ======= SLIDE 12: WireShark — krok 4 ======= -->
+  <div class="slide" id="slide-12">
+    <h3>Analýza síťové komunikace · krok 4 / 4</h3>
+    <h2><span class="accent-yellow">Token Exchange</span> — <code style="font-size:1.3rem">oauth2.googleapis.com</code></h2>
+    <div class="separator"></div>
+    <div class="ws-step-badge">
+      <div class="ws-step-num" style="background:#FBBC05; color:#000">4</div>
+      <span class="ws-step-label">POST /token · TLS 1.3 · FIN/ACK ukončení</span>
+    </div>
+    <div class="ws-img-container">
+      <img src="wireshark_komunikace.png" alt="Wireshark — token exchange s oauth2.googleapis.com">
+    </div>
+    <div class="ws-desc-box">
+      TCP handshake na port <code>443</code>, TLS 1.3 <code>Client Hello</code> se SNI =
+      <em>oauth2.googleapis.com</em>. Po výměně šifrovacích parametrů proběhne šifrovaná
+      <code>Application Data</code> — backend posílá <code>code</code> + <code>client_secret</code>
+      a přijímá <code>access_token</code> + <code>id_token</code>. Spojení je ukončeno
+      <code>FIN/ACK</code> sekvencí.
+    </div>
+  </div>
+
+  <!-- ======= SLIDE 13: Závěr ======= -->
+  <div class="slide" id="slide-13">
     <h3>Závěr</h3>
     <h2>Výsledek a <span class="accent-blue">vlastní názor</span></h2>
     <div class="separator"></div>
@@ -719,8 +825,8 @@ GOOGLE_CLIENT_SECRET=<span class="st">GOCSPX-...</span></code></pre>
     </div>
   </div>
 
-  <!-- ======= SLIDE 11: Literatura ======= -->
-  <div class="slide" id="slide-11">
+  <!-- ======= SLIDE 14: Literatura ======= -->
+  <div class="slide" id="slide-14">
     <h3>Použitá literatura</h3>
     <h2>Zdroje a <span class="accent-blue">reference</span></h2>
     <div class="separator"></div>
@@ -765,9 +871,46 @@ GOOGLE_CLIENT_SECRET=<span class="st">GOCSPX-...</span></code></pre>
   <button id="next" onclick="changeSlide(1)">Další &#8594;</button>
 </div>
 
+<!-- Notes toggle button -->
+<button class="notes-toggle" id="notes-toggle-btn" onclick="toggleNotes()" title="Klávesa N">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+  </svg>
+  Dialog
+</button>
+
+<!-- Speaker Notes Panel -->
+<div class="notes-panel" id="notes-panel">
+  <div class="notes-panel-header">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+    </svg>
+    Poznámky přednášejícího
+  </div>
+  <div class="notes-text" id="notes-text"></div>
+</div>
+
 <script>
-  const TOTAL = 11;
+  const TOTAL = 14;
   let current = 1;
+  let notesOpen = false;
+
+  const NOTES = {
+    1: "Dobrý den, dnes vám představíme náš semestrální projekt — Django aplikaci s autentizací přes Google OAuth2. Jde o turnajový systém, kde se uživatelé přihlašují výhradně pomocí svého Google účtu. Projekt vypracovali Pavel Salajka a Alexandr Kania.",
+    2: "OAuth 2.0 je průmyslový standard pro delegovanou autorizaci. Klíčová myšlenka: aplikace nikdy nevidí uživatelovo heslo — místo toho dostane od Googlu krátkodobý token s omezeným rozsahem přístupu. Protokol definuje RFC 6749.",
+    3: "Pojďme si projít, jak celý Authorization Code Flow funguje v praxi. Uživatel klikne, prohlížeč dostane přesměrování na Google, Google vystaví jednorázový kód, server jej vymění za token — a to vše server-to-server, takže client_secret nikdy neprojde přes prohlížeč.",
+    4: "Proč OAuth? Tradiční Django autentizace funguje dobře, ale vyžaduje vlastní správu hesel, hashování, reset flow, email verifikaci a ochranu před brute-force útoky. OAuth tuto odpovědnost deleguje na Google.",
+    5: "Naše aplikace rozlišuje dva typy uživatelů — Hráče a Zakladatele turnajů. Oba se přihlašují přes Google. Po prvním přihlášení si uživatel vybere roli a je přesměrován na příslušný dashboard.",
+    6: "Implementace je díky knihovně django-allauth překvapivě přímočará. Stačí přidat několik řádků do INSTALLED_APPS a nastavit SOCIALACCOUNT_PROVIDERS s client_id a secret načtenými z .env souboru.",
+    7: "Před samotným kódováním je třeba zaregistrovat aplikaci v Google Cloud Console. Klíčové je správně nastavit Authorized redirect URI — při lokálním vývoji na 127.0.0.1:8000, v produkci pak na HTTPS adresu.",
+    8: "Pro ochranu views jsme implementovali vlastní dekorátory. Decorator player_required ověří přihlášení, roli a případně přesměruje. To nám dává jemnou kontrolu nad přístupem bez opakování kódu.",
+    9: "Nyní se podíváme na zachycený síťový provoz přes Wireshark. Krok jedna: prohlížeč odesílá GET požadavek na Django server na loopback rozhraní. Django vygeneruje OAuth URL s parametry a odpoví 302 přesměrováním na Google.",
+    10: "Krok dva: prohlížeč navazuje zabezpečené spojení s accounts.google.com. Vidíme klasický TCP three-way handshake na portu 443 a poté TLS 1.3 Client Hello se SNI. Veškerá komunikace s Google je šifrovaná — Wireshark vidí pouze metadata, ne obsah.",
+    11: "Krok tři: po tom, co uživatel schválí přístup na consent stránce, Google přesměruje zpět na náš callback endpoint. V URL je vidět jednorázový authorization code a state parametr pro ochranu před CSRF útoky.",
+    12: "Krok čtyři — nejdůležitější část: Django backend samostatně (server-to-server) zavolá Google token endpoint. Pošle code plus client_secret a dostane zpět access_token a id_token. Prohlížeč tuto výměnu vůbec nevidí. Spojení je ukončeno FIN/ACK sekvencí.",
+    13: "Na závěr: projekt funguje a splnil očekávání. OAuth2 přes Google je výrazně komfortnější než vlastní autentizace — odpadá správa hesel i celá bezpečnostní infrastruktura. Největší výzvou byly závislosti PyJWT vs jwt a pochopení, jak allauth řeší kolize emailů.",
+    14: "Děkujeme za pozornost. Zde jsou zdroje, ze kterých jsme vycházeli — zejména RFC 6749, dokumentace django-allauth a Google Identity dokumentace. Rádi odpovíme na případné dotazy."
+  };
 
   function changeSlide(dir) {
     document.getElementById('slide-' + current).classList.remove('active');
@@ -783,29 +926,25 @@ GOOGLE_CLIENT_SECRET=<span class="st">GOCSPX-...</span></code></pre>
     document.getElementById('next').disabled = current === TOTAL;
     document.getElementById('slide-counter').textContent = current + ' / ' + TOTAL;
     document.getElementById('progress').style.width = (current / TOTAL * 100) + '%';
+    document.getElementById('notes-text').textContent = NOTES[current] || '';
   }
 
-  function loadWsImage(event, id) {
-    const file = event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const placeholder = document.getElementById(id);
-      const existing = placeholder.querySelector('img');
-      if (existing) existing.remove();
-      const img = document.createElement('img');
-      img.src = e.target.result;
-      placeholder.insertBefore(img, placeholder.querySelector('.ws-icon'));
-      placeholder.classList.add('has-image');
-    };
-    reader.readAsDataURL(file);
+  function toggleNotes() {
+    notesOpen = !notesOpen;
+    document.getElementById('notes-panel').classList.toggle('open', notesOpen);
+    document.getElementById('notes-toggle-btn').classList.toggle('active', notesOpen);
+    // push slides up when panel is open
+    document.querySelector('.slideshow').style.paddingBottom = notesOpen ? '200px' : '0';
   }
 
   document.addEventListener('keydown', function(e) {
+    if (e.target.tagName === 'INPUT') return;
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
       if (current < TOTAL) changeSlide(1);
     } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
       if (current > 1) changeSlide(-1);
+    } else if (e.key === 'n' || e.key === 'N') {
+      toggleNotes();
     }
   });
 
