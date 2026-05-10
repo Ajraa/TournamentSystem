@@ -4,3 +4,4 @@ django-allauth[google]
 python-dotenv
 requests
 PyJWT
+cryptography
