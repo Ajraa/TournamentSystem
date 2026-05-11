@@ -441,6 +441,39 @@
     color: #a5d6ff;
   }
 
+  /* Packet annotation table */
+  .ws-packet-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: .78rem;
+  }
+  .ws-packet-table th {
+    text-align: left;
+    color: #5f6368;
+    font-size: .7rem;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    padding: 4px 10px 6px;
+    border-bottom: 1px solid #2a2d35;
+  }
+  .ws-packet-table td {
+    padding: 5px 10px;
+    border-bottom: 1px solid #1e2129;
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  .ws-packet-table tr:last-child td { border-bottom: none; }
+  .ws-packet-table tr:hover td { background: #1a1e26; }
+  .ws-pkt-num  { color: #5f6368; white-space: nowrap; min-width: 52px; }
+  .ws-proto-tcp  { color: #4285F4; font-weight: 600; white-space: nowrap; }
+  .ws-proto-tls  { color: #34A853; font-weight: 600; white-space: nowrap; }
+  .ws-proto-http { color: #FBBC05; font-weight: 600; white-space: nowrap; }
+  .ws-proto-warn { color: #EA4335; font-weight: 600; white-space: nowrap; }
+  .ws-pkt-main   { color: #e8eaed; }
+  .ws-pkt-sub    { color: #9aa0a6; font-size: .73rem; display: block; margin-top: 1px; }
+
   @media (max-width: 900px) {
     .slide { padding: 40px 28px 80px; }
     h1 { font-size: 1.9rem; }
@@ -739,6 +772,15 @@ GOOGLE_CLIENT_SECRET=<span class="st">GOCSPX-...</span></code></pre>
       (<code>127.0.0.1:8000</code>). Django odpovídá <code>302 Found</code> a přesměrovává prohlížeč
       na Google OAuth server — URL obsahuje parametry <code>client_id</code>, <code>scope</code>
       a <code>redirect_uri</code>.
+      <table class="ws-packet-table">
+        <thead><tr><th>#</th><th>Protokol</th><th>Popis</th></tr></thead>
+        <tbody>
+          <tr><td class="ws-pkt-num">48</td><td class="ws-proto-http">HTTP</td><td class="ws-pkt-main"><code>GET /accounts/google/login/ HTTP/1.1</code><span class="ws-pkt-sub">Prohlížeč žádá Django o zahájení OAuth flow</span></td></tr>
+          <tr><td class="ws-pkt-num">49–55</td><td class="ws-proto-tcp">TCP</td><td class="ws-pkt-main">ACK / PSH, ACK<span class="ws-pkt-sub">Přenos HTTP odpovědi po fragmentech (reassembled in #56)</span></td></tr>
+          <tr><td class="ws-pkt-num">56</td><td class="ws-proto-http">HTTP</td><td class="ws-pkt-main"><code>302 Found</code><span class="ws-pkt-sub">Django přesměrovává prohlížeč na accounts.google.com s parametry client_id, scope, redirect_uri</span></td></tr>
+          <tr><td class="ws-pkt-num">57</td><td class="ws-proto-tcp">TCP</td><td class="ws-pkt-main">ACK<span class="ws-pkt-sub">Prohlížeč potvrdil přijetí odpovědi — spojení ukončeno</span></td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
@@ -760,6 +802,18 @@ GOOGLE_CLIENT_SECRET=<span class="st">GOCSPX-...</span></code></pre>
       <code>Server Hello</code> + <code>Change Cipher Spec</code>. Následující
       <code>Application Data</code> obsahují šifrovanou consent page — stránku, kde uživatel
       schvaluje přístup k profilu a e-mailu.
+      <table class="ws-packet-table">
+        <thead><tr><th>#</th><th>Protokol</th><th>Popis</th></tr></thead>
+        <tbody>
+          <tr><td class="ws-pkt-num">8386</td><td class="ws-proto-tcp">TCP</td><td class="ws-pkt-main">SYN<span class="ws-pkt-sub">Prohlížeč iniciuje TCP spojení na port 443 (HTTPS)</span></td></tr>
+          <tr><td class="ws-pkt-num">8423</td><td class="ws-proto-tcp">TCP</td><td class="ws-pkt-main">SYN-ACK<span class="ws-pkt-sub">Google přijímá spojení a potvrzuje</span></td></tr>
+          <tr><td class="ws-pkt-num">8424</td><td class="ws-proto-tcp">TCP</td><td class="ws-pkt-main">ACK<span class="ws-pkt-sub">Dokončení three-way handshake — spojení navázáno</span></td></tr>
+          <tr><td class="ws-pkt-num">8425</td><td class="ws-proto-tls">TLSv1.3</td><td class="ws-pkt-main">Client Hello <code>(SNI=accounts.google.com)</code><span class="ws-pkt-sub">Prohlížeč zahajuje TLS — SNI říká serveru, pro kterou doménu žádá certifikát</span></td></tr>
+          <tr><td class="ws-pkt-num">8466</td><td class="ws-proto-tls">TLSv1.3</td><td class="ws-pkt-main">Server Hello, Change Cipher Spec<span class="ws-pkt-sub">Google odpovídá certifikátem a dohodnutými šifrovacími parametry</span></td></tr>
+          <tr><td class="ws-pkt-num">8505+</td><td class="ws-proto-tls">TLSv1.3</td><td class="ws-pkt-main">Application Data<span class="ws-pkt-sub">Šifrovaná consent page — HTML/JS Google přihlašovací stránky</span></td></tr>
+          <tr><td class="ws-pkt-num">8630–8631</td><td class="ws-proto-warn">TCP</td><td class="ws-pkt-main">Spurious Retransmission / Dup ACK<span class="ws-pkt-sub">Síťový artefakt (paket doručen dvakrát) — bez dopadu na OAuth flow</span></td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
@@ -780,6 +834,13 @@ GOOGLE_CLIENT_SECRET=<span class="st">GOCSPX-...</span></code></pre>
       <code>state</code> v URL. Django zachytí tento požadavek, ověří <code>state</code> proti
       CSRF tokenu a následně vymění <code>code</code> za přístupové tokeny voláním Google API
       na straně serveru. Django odpovídá <code>302 Found</code> a přesměrovává uživatele na dashboard.
+      <table class="ws-packet-table">
+        <thead><tr><th>#</th><th>Protokol</th><th>Popis</th></tr></thead>
+        <tbody>
+          <tr><td class="ws-pkt-num">70</td><td class="ws-proto-http">HTTP</td><td class="ws-pkt-main"><code>GET /accounts/google/login/callback/?state=…&amp;code=4%2F0Aeo…</code><span class="ws-pkt-sub">Google vrátil jednorázový authorization code — platný jen pro jedno použití</span></td></tr>
+          <tr><td class="ws-pkt-num">78</td><td class="ws-proto-http">HTTP</td><td class="ws-pkt-main"><code>302 Found</code><span class="ws-pkt-sub">Django ověřil state, vyměnil code za tokeny (server-side) a přesměrovává na dashboard</span></td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
@@ -801,6 +862,18 @@ GOOGLE_CLIENT_SECRET=<span class="st">GOCSPX-...</span></code></pre>
       <code>Application Data</code> — backend posílá <code>code</code> + <code>client_secret</code>
       a přijímá <code>access_token</code> + <code>id_token</code>. Spojení je ukončeno
       <code>FIN/ACK</code> sekvencí.
+      <table class="ws-packet-table">
+        <thead><tr><th>#</th><th>Protokol</th><th>Popis</th></tr></thead>
+        <tbody>
+          <tr><td class="ws-pkt-num">280</td><td class="ws-proto-tcp">TCP</td><td class="ws-pkt-main">SYN<span class="ws-pkt-sub">Django backend iniciuje TCP spojení na oauth2.googleapis.com:443</span></td></tr>
+          <tr><td class="ws-pkt-num">282</td><td class="ws-proto-tcp">TCP</td><td class="ws-pkt-main">SYN-ACK<span class="ws-pkt-sub">Google přijímá spojení</span></td></tr>
+          <tr><td class="ws-pkt-num">283</td><td class="ws-proto-tcp">TCP</td><td class="ws-pkt-main">ACK<span class="ws-pkt-sub">Three-way handshake dokončen</span></td></tr>
+          <tr><td class="ws-pkt-num">285</td><td class="ws-proto-tls">TLSv1.3</td><td class="ws-pkt-main">Client Hello <code>(SNI=oauth2.googleapis.com)</code><span class="ws-pkt-sub">Django zahajuje TLS — bez prohlížeče, čistě server-to-server komunikace</span></td></tr>
+          <tr><td class="ws-pkt-num">287</td><td class="ws-proto-tls">TLSv1.3</td><td class="ws-pkt-main">Server Hello, Change Cipher Spec<span class="ws-pkt-sub">Google odpovídá, šifrovací parametry dohodnuty</span></td></tr>
+          <tr><td class="ws-pkt-num">289–299</td><td class="ws-proto-tls">TLSv1.3</td><td class="ws-pkt-main">Application Data<span class="ws-pkt-sub">Šifrovaný POST /token — Django odesílá code + client_secret, Google vrací access_token + id_token</span></td></tr>
+          <tr><td class="ws-pkt-num">301–303</td><td class="ws-proto-tcp">TCP</td><td class="ws-pkt-main">FIN/ACK → FIN/ACK → ACK<span class="ws-pkt-sub">Řádné ukončení TCP spojení oběma stranami</span></td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
