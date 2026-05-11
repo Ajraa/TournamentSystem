@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="cs">
 <head>
 <meta charset="UTF-8">
@@ -548,38 +548,79 @@
     </div>
   </div>
 
-  <!-- ======= SLIDE 3: OAuth flow ======= -->
+  <!-- ======= SLIDE 3: Klíčové pojmy ======= -->
   <div class="slide" id="slide-3">
+    <h3>Terminologie</h3>
+    <h2>Klíčové pojmy <span class="accent-blue">OAuth 2.0</span></h2>
+    <div class="separator"></div>
+    <div class="card-grid">
+      <div class="card blue">
+        <h4 class="accent-blue">client_id</h4>
+        <p>Veřejný identifikátor aplikace. Google podle něj pozná, která aplikace žádá o přístup.</p>
+      </div>
+      <div class="card red">
+        <h4 class="accent-red">client_secret</h4>
+        <p>Tajný klíč aplikace — nikdy neopustí server. Slouží k prokázání identity při výměně kódu za token.</p>
+      </div>
+      <div class="card green">
+        <h4 class="accent-green">scope</h4>
+        <p>Rozsah oprávnění, o která aplikace žádá — např. <code>email</code>, <code>profile</code> nebo přístup ke Google Sheets.</p>
+      </div>
+      <div class="card yellow">
+        <h4 class="accent-yellow">redirect_uri</h4>
+        <p>Adresa, na kterou Google přesměruje uživatele po přihlášení. Musí být předem zaregistrovaná v Google Cloud Console.</p>
+      </div>
+      <div class="card blue">
+        <h4 class="accent-blue">authorization code</h4>
+        <p>Jednorázový kód vydaný po souhlasu uživatele. Platí jen krátce a jen pro jedno použití.</p>
+      </div>
+      <div class="card green">
+        <h4 class="accent-green">access_token</h4>
+        <p>Krátkodobý přístupový klíč k datům (minuty až hodiny). Aplikace ho přikládá ke každému API požadavku.</p>
+      </div>
+      <div class="card red">
+        <h4 class="accent-red">refresh_token</h4>
+        <p>Dlouhodobý token pro obnovení access_tokenu bez nutnosti znovu přihlašovat uživatele.</p>
+      </div>
+      <div class="card yellow">
+        <h4 class="accent-yellow">consent page</h4>
+        <p>Stránka zobrazená uživateli: „Tato aplikace chce přistupovat k…" Uživatel explicitně schvaluje rozsah přístupu.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= SLIDE 4: OAuth flow ======= -->
+  <div class="slide" id="slide-4">
     <h3>Jak to funguje</h3>
     <h2>OAuth 2.0 <span class="accent-green">Authorization Code Flow</span></h2>
     <div class="separator"></div>
     <div class="two-col">
-      <ol class="flow-steps">
-        <li>Uživatel klikne na <em>„Přihlásit přes Google"</em></li>
-        <li>Aplikace přesměruje na Google autorizační server s <code>client_id</code> a <code>scope</code></li>
-        <li>Google zobrazí consent screen — uživatel schválí přístup</li>
-        <li>Google vrátí jednorázový <strong>Authorization Code</strong> na callback URL</li>
-        <li>Server vymění kód za <strong>Access Token</strong> (+ ID Token) pomocí <code>client_secret</code></li>
-        <li>Access Token slouží k načtení profilu z Google API</li>
-        <li>Aplikace vytvoří/přihlásí lokálního uživatele</li>
+      <ol class="flow-steps" style="font-size:.82rem; margin-top:0;">
+        <li style="margin-bottom:7px"><strong>Zahájení autorizace:</strong> Aplikace odešle požadavek na OAuth Service — <code>clientId,</code> <code>scope,</code> <code>redirect_uri.</code></li>
+        <li style="margin-bottom:7px"><strong>Vyžádání přihlášení:</strong> OAuth Service vrátí přes aplikaci přihlašovací stránku uživateli.</li>
+        <li style="margin-bottom:7px"><strong>Přihlášení uživatele:</strong> Uživatel zadá údaje přímo do OAuth Service — aplikace je nikdy nevidí.</li>
+        <li style="margin-bottom:7px"><strong>Consent page:</strong> OAuth Service zobrazí: <em>„Tato aplikace chce přistupovat k vašim datům. Povolíte to?"</em></li>
+        <li style="margin-bottom:7px"><strong>Udělení souhlasu:</strong> Uživatel přístup schválí.</li>
+        <li style="margin-bottom:7px"><strong>Vydání kódu:</strong> OAuth Service vygeneruje jednorázový <strong>authorization code</strong> a pošle ho aplikaci.</li>
+        <li style="margin-bottom:7px"><strong>Výměna kódu za token:</strong> Aplikace pošle kód + <code>client_secret</code> zpět na OAuth Service — prokáže svou identitu.</li>
+        <li style="margin-bottom:7px"><strong>Získání tokenů:</strong> OAuth Service vydá <strong>access_token</strong> + <strong>refresh_token.</strong></li>
+        <li style="margin-bottom:7px"><strong>Žádost o data:</strong> Aplikace použije token a dotáže se Resource Service (např. Google Sheets API).</li>
+        <li style="margin-bottom:7px"><strong>Ověření tokenu:</strong> Resource Service ověří platnost tokenu u OAuth Service.</li>
+        <li style="margin-bottom:7px"><strong>Potvrzení platnosti:</strong> OAuth Service potvrdí, že je vše v pořádku.</li>
+        <li style="margin-bottom:7px"><strong>Přístup k datům:</strong> Resource Service sáhne do samotného zdroje (Resource) pro data.</li>
+        <li style="margin-bottom:7px"><strong>Vrácení dat:</strong> Resource vrátí data Resource Service.</li>
+        <li style="margin-bottom:7px"><strong>Předání aplikaci:</strong> Resource Service odpoví aplikaci s požadovanými daty.</li>
       </ol>
-      <div class="arch-flow">
-        <div class="arch-node" style="border-color:#4285F4">Prohlížeč</div>
-        <div class="arch-arrow">↕ přesměrování (redirect)</div>
-        <div class="arch-node" style="border-color:#EA4335">Google OAuth Server</div>
-        <div class="arch-arrow">↕ auth code → token exchange</div>
-        <div class="arch-node" style="border-color:#34A853">Django Backend</div>
-        <div class="arch-arrow">↕ GET /userinfo</div>
-        <div class="arch-node" style="border-color:#FBBC05">Google People API</div>
-        <p style="margin-top:12px; font-size:.8rem; color:#5f6368; text-align:center">
-          client_secret putuje pouze server ↔ server, nikdy přes prohlížeč
-        </p>
+      <div style="display:flex; align-items:center; justify-content:center;">
+        <div style="background:#fff; border-radius:8px; padding:6px; overflow:hidden; box-shadow:0 0 0 1px #30363d;">
+          <img src="oauth_diagram.webp" alt="OAuth 2.0 Authorization Code Flow" style="width:100%; max-height:62vh; object-fit:contain; display:block; border-radius:4px;">
+        </div>
       </div>
     </div>
   </div>
 
   <!-- ======= SLIDE 4: Stávající stav ======= -->
-  <div class="slide" id="slide-4">
+  <div class="slide" id="slide-5">
     <h3>Stávající stav</h3>
     <h2>Autentizace v <span class="accent-red">Django</span> bez OAuth</h2>
     <div class="separator"></div>
@@ -612,18 +653,63 @@ user = <span class="fn">authenticate</span>(
   </div>
 
   <!-- ======= SLIDE 5: Architektura projektu ======= -->
-  <div class="slide" id="slide-5">
+  <div class="slide" id="slide-6">
     <h3>Projekt</h3>
     <h2>Turnajový systém — <span class="accent-blue">Architektura</span></h2>
     <div class="separator"></div>
     <div class="two-col">
       <div>
         <p>Dva typy uživatelů, oba přihlášeni přes Google OAuth2:</p>
-        <div class="model-diagram">
-          <div><span class="mn mn-grey">auth.User</span> ── <span class="mn mn-blue">Player</span> ──┐</div>
-          <div style="padding-left:120px">├── <span class="mn mn-green">Team</span> ──┐</div>
-          <div><span class="mn mn-grey">auth.User</span> ── <span class="mn mn-red">Founder</span> ─┘&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── <span class="mn mn-yellow">Tournament</span></div>
-          <div style="padding-left:200px">└── <span class="mn mn-yellow">Match</span></div>
+        <div class="model-diagram" style="padding:16px 12px;">
+          <svg viewBox="0 0 460 200" width="100%" xmlns="http://www.w3.org/2000/svg" style="font-family:'JetBrains Mono',monospace; overflow:visible;">
+            <!-- auth.User (top center, gray) -->
+            <rect x="170" y="8" width="120" height="26" rx="4" fill="#1e2129" stroke="#9aa0a6" stroke-width="1.5"/>
+            <text x="230" y="25" text-anchor="middle" fill="#e8eaed" font-size="11">auth.User</text>
+
+            <!-- Player (left, blue) -->
+            <rect x="40" y="82" width="82" height="26" rx="4" fill="#1e2129" stroke="#4285F4" stroke-width="1.5"/>
+            <text x="81" y="99" text-anchor="middle" fill="#e8eaed" font-size="11">Player</text>
+
+            <!-- Founder (right, red) -->
+            <rect x="338" y="82" width="82" height="26" rx="4" fill="#1e2129" stroke="#EA4335" stroke-width="1.5"/>
+            <text x="379" y="99" text-anchor="middle" fill="#e8eaed" font-size="11">Founder</text>
+
+            <!-- Match (bottom left, yellow) -->
+            <rect x="10" y="158" width="72" height="26" rx="4" fill="#1e2129" stroke="#FBBC05" stroke-width="1.5"/>
+            <text x="46" y="175" text-anchor="middle" fill="#e8eaed" font-size="11">Match</text>
+
+            <!-- Team (bottom center, green) -->
+            <rect x="170" y="158" width="72" height="26" rx="4" fill="#1e2129" stroke="#34A853" stroke-width="1.5"/>
+            <text x="206" y="175" text-anchor="middle" fill="#e8eaed" font-size="11">Team</text>
+
+            <!-- Tournament (bottom right, yellow) -->
+            <rect x="318" y="158" width="112" height="26" rx="4" fill="#1e2129" stroke="#FBBC05" stroke-width="1.5"/>
+            <text x="374" y="175" text-anchor="middle" fill="#e8eaed" font-size="11">Tournament</text>
+
+            <!-- auth.User → Player (1:1) -->
+            <line x1="195" y1="34" x2="108" y2="82" stroke="#5f6368" stroke-width="1.2"/>
+            <text x="143" y="59" text-anchor="middle" fill="#5f6368" font-size="9">1:1</text>
+
+            <!-- auth.User → Founder (1:1) -->
+            <line x1="265" y1="34" x2="362" y2="82" stroke="#5f6368" stroke-width="1.2"/>
+            <text x="320" y="59" text-anchor="middle" fill="#5f6368" font-size="9">1:1</text>
+
+            <!-- Player → Team (M:M) -->
+            <line x1="100" y1="108" x2="188" y2="158" stroke="#4285F4" stroke-width="1.2"/>
+            <text x="136" y="137" text-anchor="middle" fill="#5f6368" font-size="9">M:M</text>
+
+            <!-- Founder → Tournament (FK) -->
+            <line x1="374" y1="108" x2="374" y2="158" stroke="#EA4335" stroke-width="1.2"/>
+            <text x="394" y="136" text-anchor="middle" fill="#5f6368" font-size="9">FK</text>
+
+            <!-- Match ↔ Team (M:M, horizontal) -->
+            <line x1="82" y1="171" x2="170" y2="171" stroke="#FBBC05" stroke-width="1.2"/>
+            <text x="126" y="166" text-anchor="middle" fill="#5f6368" font-size="9">M:M</text>
+
+            <!-- Team ↔ Tournament (M:M, horizontal) -->
+            <line x1="242" y1="171" x2="318" y2="171" stroke="#34A853" stroke-width="1.2"/>
+            <text x="280" y="166" text-anchor="middle" fill="#5f6368" font-size="9">M:M</text>
+          </svg>
         </div>
         <p style="margin-top:14px; font-size:.88rem">Po přihlášení přes Google → výběr role (<code>/role-select/</code>) → přesměrování na příslušný dashboard</p>
       </div>
@@ -646,7 +732,7 @@ user = <span class="fn">authenticate</span>(
   </div>
 
   <!-- ======= SLIDE 6: Konfigurace Django ======= -->
-  <div class="slide" id="slide-6">
+  <div class="slide" id="slide-7">
     <h3>Praktická konfigurace</h3>
     <h2><span class="accent-blue">django-allauth</span> — instalace a nastavení</h2>
     <div class="separator"></div>
@@ -686,7 +772,7 @@ SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = <span class="nu">True</span></
   </div>
 
   <!-- ======= SLIDE 7: Google Cloud Console ======= -->
-  <div class="slide" id="slide-7">
+  <div class="slide" id="slide-8">
     <h3>Praktická konfigurace</h3>
     <h2><span class="accent-red">Google Cloud Console</span> — přihlašovací údaje</h2>
     <div class="separator"></div>
@@ -715,7 +801,7 @@ GOOGLE_CLIENT_SECRET=<span class="st">GOCSPX-...</span></code></pre>
   </div>
 
   <!-- ======= SLIDE 8: Přístupová ochrana ======= -->
-  <div class="slide" id="slide-8">
+  <div class="slide" id="slide-9">
     <h3>Řešení</h3>
     <h2>Přístupová ochrana — <span class="accent-green">dekorátory</span></h2>
     <div class="separator"></div>
@@ -756,7 +842,7 @@ GOOGLE_CLIENT_SECRET=<span class="st">GOCSPX-...</span></code></pre>
   </div>
 
   <!-- ======= SLIDE 9: WireShark — krok 1 ======= -->
-  <div class="slide" id="slide-9">
+  <div class="slide" id="slide-10">
     <h3>Analýza síťové komunikace · krok 1 / 4</h3>
     <h2><span class="accent-blue">Počáteční GET požadavek</span></h2>
     <div class="separator"></div>
@@ -785,7 +871,7 @@ GOOGLE_CLIENT_SECRET=<span class="st">GOCSPX-...</span></code></pre>
   </div>
 
   <!-- ======= SLIDE 10: WireShark — krok 2 ======= -->
-  <div class="slide" id="slide-10">
+  <div class="slide" id="slide-11">
     <h3>Analýza síťové komunikace · krok 2 / 4</h3>
     <h2><span class="accent-blue">TLS Handshake</span> — <code style="font-size:1.3rem">accounts.google.com</code></h2>
     <div class="separator"></div>
@@ -818,7 +904,7 @@ GOOGLE_CLIENT_SECRET=<span class="st">GOCSPX-...</span></code></pre>
   </div>
 
   <!-- ======= SLIDE 11: WireShark — krok 3 ======= -->
-  <div class="slide" id="slide-11">
+  <div class="slide" id="slide-12">
     <h3>Analýza síťové komunikace · krok 3 / 4</h3>
     <h2><span class="accent-green">Callback</span> s Authorization Code</h2>
     <div class="separator"></div>
@@ -845,7 +931,7 @@ GOOGLE_CLIENT_SECRET=<span class="st">GOCSPX-...</span></code></pre>
   </div>
 
   <!-- ======= SLIDE 12: WireShark — krok 4 ======= -->
-  <div class="slide" id="slide-12">
+  <div class="slide" id="slide-13">
     <h3>Analýza síťové komunikace · krok 4 / 4</h3>
     <h2><span class="accent-yellow">Token Exchange</span> — <code style="font-size:1.3rem">oauth2.googleapis.com</code></h2>
     <div class="separator"></div>
@@ -878,7 +964,7 @@ GOOGLE_CLIENT_SECRET=<span class="st">GOCSPX-...</span></code></pre>
   </div>
 
   <!-- ======= SLIDE 13: Závěr ======= -->
-  <div class="slide" id="slide-13">
+  <div class="slide" id="slide-14">
     <h3>Závěr</h3>
     <h2>Výsledek a <span class="accent-blue">vlastní názor</span></h2>
     <div class="separator"></div>
@@ -899,7 +985,7 @@ GOOGLE_CLIENT_SECRET=<span class="st">GOCSPX-...</span></code></pre>
   </div>
 
   <!-- ======= SLIDE 14: Literatura ======= -->
-  <div class="slide" id="slide-14">
+  <div class="slide" id="slide-15">
     <h3>Použitá literatura</h3>
     <h2>Zdroje a <span class="accent-blue">reference</span></h2>
     <div class="separator"></div>
@@ -964,25 +1050,26 @@ GOOGLE_CLIENT_SECRET=<span class="st">GOCSPX-...</span></code></pre>
 </div>
 
 <script>
-  const TOTAL = 14;
+  const TOTAL = 15;
   let current = 1;
   let notesOpen = false;
 
   const NOTES = {
     1: "Dobrý den, dnes vám představíme náš semestrální projekt — Django aplikaci s autentizací přes Google OAuth2. Jde o turnajový systém, kde se uživatelé přihlašují výhradně pomocí svého Google účtu. Projekt vypracovali Pavel Salajka a Alexandr Kania.",
     2: "OAuth 2.0 je průmyslový standard pro delegovanou autorizaci. Klíčová myšlenka: aplikace nikdy nevidí uživatelovo heslo — místo toho dostane od Googlu krátkodobý token s omezeným rozsahem přístupu. Protokol definuje RFC 6749.",
-    3: "Pojďme si projít, jak celý Authorization Code Flow funguje v praxi. Uživatel klikne, prohlížeč dostane přesměrování na Google, Google vystaví jednorázový kód, server jej vymění za token — a to vše server-to-server, takže client_secret nikdy neprojde přes prohlížeč.",
-    4: "Proč OAuth? Tradiční Django autentizace funguje dobře, ale vyžaduje vlastní správu hesel, hashování, reset flow, email verifikaci a ochranu před brute-force útoky. OAuth tuto odpovědnost deleguje na Google.",
-    5: "Naše aplikace rozlišuje dva typy uživatelů — Hráče a Zakladatele turnajů. Oba se přihlašují přes Google. Po prvním přihlášení si uživatel vybere roli a je přesměrován na příslušný dashboard.",
-    6: "Implementace je díky knihovně django-allauth překvapivě přímočará. Stačí přidat několik řádků do INSTALLED_APPS a nastavit SOCIALACCOUNT_PROVIDERS s client_id a secret načtenými z .env souboru.",
-    7: "Před samotným kódováním je třeba zaregistrovat aplikaci v Google Cloud Console. Klíčové je správně nastavit Authorized redirect URI — při lokálním vývoji na 127.0.0.1:8000, v produkci pak na HTTPS adresu.",
-    8: "Pro ochranu views jsme implementovali vlastní dekorátory. Decorator player_required ověří přihlášení, roli a případně přesměruje. To nám dává jemnou kontrolu nad přístupem bez opakování kódu.",
-    9: "Nyní se podíváme na zachycený síťový provoz přes Wireshark. Krok jedna: prohlížeč odesílá GET požadavek na Django server na loopback rozhraní. Django vygeneruje OAuth URL s parametry a odpoví 302 přesměrováním na Google.",
-    10: "Krok dva: prohlížeč navazuje zabezpečené spojení s accounts.google.com. Vidíme klasický TCP three-way handshake na portu 443 a poté TLS 1.3 Client Hello se SNI. Veškerá komunikace s Google je šifrovaná — Wireshark vidí pouze metadata, ne obsah.",
-    11: "Krok tři: po tom, co uživatel schválí přístup na consent stránce, Google přesměruje zpět na náš callback endpoint. V URL je vidět jednorázový authorization code a state parametr pro ochranu před CSRF útoky.",
-    12: "Krok čtyři — nejdůležitější část: Django backend samostatně (server-to-server) zavolá Google token endpoint. Pošle code plus client_secret a dostane zpět access_token a id_token. Prohlížeč tuto výměnu vůbec nevidí. Spojení je ukončeno FIN/ACK sekvencí.",
-    13: "Na závěr: projekt funguje a splnil očekávání. OAuth2 přes Google je výrazně komfortnější než vlastní autentizace — odpadá správa hesel i celá bezpečnostní infrastruktura. Největší výzvou byly závislosti PyJWT vs jwt a pochopení, jak allauth řeší kolize emailů.",
-    14: "Děkujeme za pozornost. Zde jsou zdroje, ze kterých jsme vycházeli — zejména RFC 6749, dokumentace django-allauth a Google Identity dokumentace. Rádi odpovíme na případné dotazy."
+    3: "Než se podíváme na samotný flow, vysvětleme si pojmy, se kterými budeme pracovat. Client_id je veřejný identifikátor aplikace — Google ho vidí a pozná, kdo žádá. Client_secret je tajný klíč, který zůstává pouze na serveru. Scope říká, co přesně aplikace chce — třeba jen email, nebo i přístup k dokumentům. Redirect_uri je adresa, kam Google uživatele vrátí po přihlášení — musí být přesně zaregistrovaná, jinak Google požadavek odmítne. Authorization code je jednorázový krátkodobý kód jako vstupenka — platí jen jednou. Access_token je samotný klíč k datům, ale s krátkou platností. Refresh_token slouží k tichému obnovení přístupu bez nutnosti znovu přihlašovat uživatele.",
+    4: "Pojďme si projít Authorization Code Flow krok za krokem. Aplikace nejprve odešle požadavek na OAuth Service — součástí je clientId, scope a redirect_uri. OAuth Service vrátí přihlašovací stránku, kterou uživatel vidí. Důležité: uživatel zadává heslo přímo do OAuth Service, aplikace ho nikdy nevidí. Po přihlášení OAuth Service zobrazí Consent page — uživatel potvrdí, jaká data aplikaci povoluje. OAuth Service vygeneruje jednorázový autorizační kód a předá ho aplikaci. Aplikace pošle tento kód zpět společně s client_secret — tím prokáže svou identitu — a OAuth Service výměnou vydá access_token a refresh_token. Refresh token slouží k obnovení přístupu, až access_token vyprší. Aplikace pak s tokenem zavolá Resource Service. Ta si token nejprve ověří u OAuth Service, a teprve po potvrzení platnosti sáhne do databáze pro data a vrátí je aplikaci.",
+    5: "Proč OAuth? Tradiční Django autentizace funguje dobře, ale vyžaduje vlastní správu hesel, hashování, reset flow, email verifikaci a ochranu před brute-force útoky. OAuth tuto odpovědnost deleguje na Google.",
+    6: "Naše aplikace rozlišuje dva typy uživatelů — Hráče a Zakladatele turnajů. Oba se přihlašují přes Google. Po prvním přihlášení si uživatel vybere roli a je přesměrován na příslušný dashboard.",
+    7: "Implementace je díky knihovně django-allauth překvapivě přímočará. Stačí přidat několik řádků do INSTALLED_APPS a nastavit SOCIALACCOUNT_PROVIDERS s client_id a secret načtenými z .env souboru.",
+    8: "Před samotným kódováním je třeba zaregistrovat aplikaci v Google Cloud Console. Klíčové je správně nastavit Authorized redirect URI — při lokálním vývoji na 127.0.0.1:8000, v produkci pak na HTTPS adresu.",
+    9: "Pro ochranu views jsme implementovali vlastní dekorátory. Decorator player_required ověří přihlášení, roli a případně přesměruje. To nám dává jemnou kontrolu nad přístupem bez opakování kódu.",
+    10: "Nyní se podíváme na zachycený síťový provoz přes Wireshark. Krok jedna: prohlížeč odesílá GET požadavek na Django server na loopback rozhraní. Django vygeneruje OAuth URL s parametry a odpoví 302 přesměrováním na Google.",
+    11: "Krok dva: prohlížeč navazuje zabezpečené spojení s accounts.google.com. Vidíme klasický TCP three-way handshake na portu 443 a poté TLS 1.3 Client Hello se SNI. Veškerá komunikace s Google je šifrovaná — Wireshark vidí pouze metadata, ne obsah.",
+    12: "Krok tři: po tom, co uživatel schválí přístup na consent stránce, Google přesměruje zpět na náš callback endpoint. V URL je vidět jednorázový authorization code a state parametr pro ochranu před CSRF útoky.",
+    13: "Krok čtyři — nejdůležitější část: Django backend samostatně (server-to-server) zavolá Google token endpoint. Pošle code plus client_secret a dostane zpět access_token a id_token. Prohlížeč tuto výměnu vůbec nevidí. Spojení je ukončeno FIN/ACK sekvencí.",
+    14: "Na závěr: projekt funguje a splnil očekávání. OAuth2 přes Google je výrazně komfortnější než vlastní autentizace — odpadá správa hesel i celá bezpečnostní infrastruktura. Největší výzvou byly závislosti PyJWT vs jwt a pochopení, jak allauth řeší kolize emailů.",
+    15: "Děkujeme za pozornost. Zde jsou zdroje, ze kterých jsme vycházeli — zejména RFC 6749, dokumentace django-allauth a Google Identity dokumentace. Rádi odpovíme na případné dotazy."
   };
 
   function changeSlide(dir) {
